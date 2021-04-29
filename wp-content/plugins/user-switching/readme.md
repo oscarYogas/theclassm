@@ -238,12 +238,20 @@ In addition, User Switching respects the following filters from WordPress core w
 
 ### 1.5.6 ###
 
+<<<<<<< HEAD
 * Add a class to the table row on the user edit screen.
+=======
+* Add a class to the table row on the user edit screen.
+>>>>>>> 81d2408ab546c456870bf427d60070682335911c
 * Updated docs.
 
 ### 1.5.5 ###
 
+<<<<<<< HEAD
 * Added the `user_switching_in_footer` filter to disable output in footer on front end.
+=======
+* Added the `user_switching_in_footer` filter to disable output in footer on front end.
+>>>>>>> 81d2408ab546c456870bf427d60070682335911c
 * Documentation additions and improvements.
 
 ### 1.5.4 ###
@@ -256,21 +264,37 @@ In addition, User Switching respects the following filters from WordPress core w
 
 ### 1.5.2 ###
 
+<<<<<<< HEAD
 * Set the correct `lang` attribute on User Switching's admin notice.
 * Move the WooCommerce session forgetting to an action callback so it can be unhooked if necessary.
+=======
+* Set the correct `lang` attribute on User Switching's admin notice.
+* Move the WooCommerce session forgetting to an action callback so it can be unhooked if necessary.
+>>>>>>> 81d2408ab546c456870bf427d60070682335911c
 
 
 ### 1.5.1 ###
 
+<<<<<<< HEAD
   * Add appropriate HTTP response codes to the error states.
   * Display User Switching's messages in the original user's locale.
   * Increase the priority of the hook that sets up the cookie constants. See #40.
   * Don't attempt to output the 'Switch To' link on author archives when the queried object isn't a user. See #39.
+=======
+  * Add appropriate HTTP response codes to the error states.
+  * Display User Switching's messages in the original user's locale.
+  * Increase the priority of the hook that sets up the cookie constants. See #40.
+  * Don't attempt to output the 'Switch To' link on author archives when the queried object isn't a user. See #39.
+>>>>>>> 81d2408ab546c456870bf427d60070682335911c
 
 
 ### 1.5.0 ###
 
+<<<<<<< HEAD
 * Add support for forgetting WooCommerce sessions when switching between users. Requires WooCommerce 3.6+.
+=======
+* Add support for forgetting WooCommerce sessions when switching between users. Requires WooCommerce 3.6+.
+>>>>>>> 81d2408ab546c456870bf427d60070682335911c
 
 
 ### 1.4.2 ###
@@ -279,39 +303,70 @@ In addition, User Switching respects the following filters from WordPress core w
 
 ### 1.4.1 ###
 
+<<<<<<< HEAD
 * Add a `Switch To` link to the Edit User admin toolbar menu when viewing an author archive.
+=======
+* Add a `Switch To` link to the Edit User admin toolbar menu when viewing an author archive.
+>>>>>>> 81d2408ab546c456870bf427d60070682335911c
 * Add a `Switch back` link to the Edit User admin toolbar menu when viewing an author archive and you're already switched.
 
 ### 1.4.0 ###
 
+<<<<<<< HEAD
 * Add support for user session retention, reuse, and destruction when switching to and back from other user accounts.
 * Add support for the `switch_users` meta capability for fine grained control over the ability to switch user accounts.
+=======
+* Add support for user session retention, reuse, and destruction when switching to and back from other user accounts.
+* Add support for the `switch_users` meta capability for fine grained control over the ability to switch user accounts.
+>>>>>>> 81d2408ab546c456870bf427d60070682335911c
 * More code and documentation quality improvements.
 
 ### 1.3.1 ###
 
+<<<<<<< HEAD
 * Add support for the `X-Redirect-By` header in WordPress 5.0.
 * Allow User Switching's admin notices to be dismissed.
 * Introduce a privacy statement.
+=======
+* Add support for the `X-Redirect-By` header in WordPress 5.0.
+* Allow User Switching's admin notices to be dismissed.
+* Introduce a privacy statement.
+>>>>>>> 81d2408ab546c456870bf427d60070682335911c
 
 
 ### 1.3.0 ###
 
+<<<<<<< HEAD
 * Update the BuddyPress compatibility.
 * Various code and inline docs improvements.
+=======
+* Update the BuddyPress compatibility.
+* Various code and inline docs improvements.
+>>>>>>> 81d2408ab546c456870bf427d60070682335911c
 
 
 ### 1.2.0 ###
 
+<<<<<<< HEAD
 * Improve the Switch Back functionality when the interim login window is shown.
 * Always show the `Switch Back` link in the Meta widget if it's present.
+=======
+* Improve the Switch Back functionality when the interim login window is shown.
+* Always show the `Switch Back` link in the Meta widget if it's present.
+>>>>>>> 81d2408ab546c456870bf427d60070682335911c
 
 
 ### 1.1.0 ###
 
+<<<<<<< HEAD
 * Introduce a `user_switching_switched_message` filter to allow customisation of the message displayed to switched users in the admin area.
 * Switch to safe redirects for extra paranoid hardening.
 * Docblock improvements.
+=======
+* Introduce a `user_switching_switched_message` filter to allow customisation of the message displayed to switched users in the admin area.
+* Switch to safe redirects for extra paranoid hardening.
+* Docblock improvements.
+>>>>>>> 81d2408ab546c456870bf427d60070682335911c
 * Coding standards improvements.
 
 ### 0.6.1 ###
