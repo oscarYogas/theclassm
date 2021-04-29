@@ -30,6 +30,7 @@ VARIABLES
 }
 .oscar{
   font-size:15px;
+  font-family: 'Courier New', Courier, monospace;
 }
 .session-variable {
   position: relative;
