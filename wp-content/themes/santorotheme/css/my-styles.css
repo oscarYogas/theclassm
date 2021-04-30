@@ -30,7 +30,11 @@ VARIABLES
 }
 .oscar{
   font-size:15px;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  color: blue;
+}
+.santoro{
+  font-size: 56px;
 }
 .session-variable {
   position: relative;
@@ -783,10 +787,6 @@ FILTROS FACETWP
 
 .fs-search {
   display: none !important;
-}
-
-.facetwp-facet-buscar .facetwp-icon {
-  /*display: none !important;*/
 }
 
 .fa-search {
