@@ -32,6 +32,9 @@ VARIABLES
   font-size:15px;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
+.santoro{
+  font-size: 56px;
+}
 .session-variable {
   position: relative;
   top: 5rem;
