@@ -30,6 +30,7 @@ VARIABLES
 }
 .oscar{
   font-size:15px;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 .session-variable {
   position: relative;
@@ -782,10 +783,6 @@ FILTROS FACETWP
 
 .fs-search {
   display: none !important;
-}
-
-.facetwp-facet-buscar .facetwp-icon {
-  /*display: none !important;*/
 }
 
 .fa-search {
