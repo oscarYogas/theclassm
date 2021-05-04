@@ -26,23 +26,21 @@ $query = new WP_Query( $args );?>
 
       <div class="container-xl">
 
-<?php /* lo englobo en php para comentarlo todo
+ 
 
-     <div class="filter-list"> 
-          <?php echo do_shortcode('[facetwp facet="tipo_programa"]'); ?>
-          <?php echo do_shortcode('[facetwp facet="clases_programa"]'); ?>
-          <?php echo do_shortcode('[facetwp facet="nivel_programa"]'); ?>
-          <?php echo do_shortcode('[facetwp facet="intensidad_programa"]'); ?>
-          <?php echo do_shortcode('[facetwp facet="foco_programa"]'); ?>
-          <?php echo do_shortcode('[facetwp facet="profesor_programa"]'); ?>
+        <div class="filter-list">
+          <?php echo do_shortcode('[facetwp facet="tipo"]'); ?>
+          <?php //echo do_shortcode('[facetwp facet="duracion"]'); ?>
+          <div>
+              <div>Duración</div>
+              <?php echo do_shortcode('[facetwp facet="duracion_exacta"]'); ?>
+          </div>
+          <?php echo do_shortcode('[facetwp facet="nivel"]'); ?>
+          <?php echo do_shortcode('[facetwp facet="intensidad"]'); ?>
+          <?php echo do_shortcode('[facetwp facet="foco"]'); ?>
+          <?php echo do_shortcode('[facetwp facet="profesor"]'); ?>
+         
         </div>
-        
-        <div class="filter-result">
-        Después de tu filtrado hay <?php echo do_shortcode( '[facetwp counts="true"]' ); ?> programas.&nbsp;&nbsp;&nbsp;<a class="linkColor" href="" onclick="FWP.reset()">Ver todos los programas</a></p>
-        </div>
-
-
-*/ ?>
 
         <ul class="video-grid">
 
@@ -69,12 +67,11 @@ $query = new WP_Query( $args );?>
 
               <div class="video-item-autor-wrapper">
                 <p class="video-item-autor-name">
-                  <?php $profesor = get_field('profesor'); echo $profesor['display_name']; ?> 
+                <?php the_field('visualizaciones') ?> yoguis  | <?php $profesor = get_field('profesor'); echo $profesor['display_name']; ?> 
                 </p>
               </div>
             </li>
           </a> 
-
           
         <?php endwhile; endif;?>
         
