@@ -339,7 +339,7 @@ else{
             <a class="navigation-link <?php echo $programas_active?>" href="<?php echo home_url()?>/programas-yoga">PROGRAMAS DE YOGA</a>
           </li>
           <li class="navigation-item">
-            <a class="navigation-link <?php echo $clases_active?>" href="<?php echo home_url()?>/clases-grabadas">CLASES GRABADAS</a>
+            <a class="navigation-link <?php echo $clases_active?>" href="<?php echo home_url()?>/clases-grabadas">CLASES  GRABADAS</a>
           </li>
           <li class="navigation-item">
             <a class="navigation-link <?php echo $directo_active?>" href="<?php echo home_url()?>/clases-directo">CLASES DIRECTO</a>

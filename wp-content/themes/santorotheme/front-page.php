@@ -58,7 +58,7 @@ $_SESSION['restricted'] =  "no";
                         <img class="home-item-img"  src="https://www.theclassyoga.com/wp-content/uploads/2020/06/Flexibilidad-intro.jpg" alt="Programas de yoga" />
                         <h3>Programas</h3>
                         <p class="subtitle3">Varios días seguidos de clases de yoga con una misma intención</p> 
-                        <button class="btn btn-secondary" onclick="window.location.href='<?php home_url();?>/programas-yoga/'">Programas yoga</button>
+                        <button class="btn btn-secondary" onclick="window.location.href='<?php echo home_url()?>/programas-yoga/'">Programas yoga</button>
                     </li>
                 </a>   
                 <a href="<?php home_url();?>/clases-grabadas/">
@@ -66,7 +66,7 @@ $_SESSION['restricted'] =  "no";
                         <img class="home-item-img"  src="https://www.theclassyoga.com/wp-content/uploads/2020/06/Yoga-x-manana-3.jpg" alt="Clases sueltas grabadas" />          
                         <h3>Clases grabadas</h3>
                         <p class="subtitle3">Elige el tipo de yoga, duración, nivel, intensidad, foco del cuerpo y profesor</p> 
-                        <button class="btn btn-secondary" onclick="window.location.href='<?php home_url();?>/clases-grabadas/'">Clases grabadas</button>
+                        <button class="btn btn-secondary" onclick="window.location.href='<?php echo home_url()?>/clases-grabadas/'">Clases grabadas</button>
                     </li>
                 </a>         
                 <a href="<?php home_url();?>/clases-directo/">
