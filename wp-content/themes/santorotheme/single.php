@@ -56,11 +56,7 @@ $_SESSION['restricted'] =  "no";
           <div class="container-l display-flex-column-align-items">
             <h2 class="post-CTA-title">¿QUIERES HACER CLASES DE YOGA ONLINE?</h2>
             <p class="CTA-subtitle">
-<<<<<<< HEAD
-            Clases de yoga adaptadas a tu forma de vida 
-=======
             Clases de yoga adaptadas a tu forma de vida
->>>>>>> acd97df1e85b8a40513bc945df30ec6d15a76b8f
             </p>
             <br/>
             <ul class="home-grid">

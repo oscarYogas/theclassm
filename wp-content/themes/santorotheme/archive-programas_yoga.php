@@ -20,11 +20,7 @@ $query = new WP_Query( $args );?>
       <h1>PROGRAMAS DE YOGA</h1>
 
       <p class="subtitle">
-<<<<<<< HEAD
-        Varios días seguidos de clases de yoga con una misma intención 
-=======
         Varios días seguidos de clases de yoga con una misma intención
->>>>>>> acd97df1e85b8a40513bc945df30ec6d15a76b8f
       </p>
 
 
@@ -47,25 +43,6 @@ $query = new WP_Query( $args );?>
 
 
 */ ?>
-<<<<<<< HEAD
-     <?php //Filtro de busqueda para las clases ?>
-          
-
-        <div class="filter-list">
-          <?php echo do_shortcode('[facetwp facet="tipo"]'); ?>
-          <?php //echo do_shortcode('[facetwp facet="duracion"]'); ?>
-          <div>
-              <div>Duración</div>
-              <?php echo do_shortcode('[facetwp facet="duracion_exacta"]'); ?>
-          </div>
-          <?php echo do_shortcode('[facetwp facet="nivel"]'); ?>
-          <?php echo do_shortcode('[facetwp facet="intensidad"]'); ?>
-          <?php echo do_shortcode('[facetwp facet="foco"]'); ?>
-          <?php echo do_shortcode('[facetwp facet="profesor"]'); ?>
-        </div>
-          
-=======
->>>>>>> acd97df1e85b8a40513bc945df30ec6d15a76b8f
 
         <ul class="video-grid">
 

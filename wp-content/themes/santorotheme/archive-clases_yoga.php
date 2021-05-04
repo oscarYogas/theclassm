@@ -1,9 +1,4 @@
 <?php get_header(); 
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> acd97df1e85b8a40513bc945df30ec6d15a76b8f
   $_SESSION['landing_before_login'] =  home_url( $wp->request );  
   $_SESSION['restricted'] =  "no";
   /*$_SESSION['last_class_seen'] = home_url( $wp->request );*/ 

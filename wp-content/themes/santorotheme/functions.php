@@ -318,8 +318,7 @@ add_filter('excerpt_length', 'isacustom_excerpt_length');
 /** PARA REDIRIGIR TRAS LOGIN LA PAGINA ANTERIOR */
 // start global session
 function start_session() {
-	session_start();
-	
+	session_start();	
 	if($status == PHP_SESSION_NONE){
 		//There is no active session
 		session_start();
