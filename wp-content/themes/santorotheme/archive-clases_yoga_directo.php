@@ -16,7 +16,7 @@
 
 
 
-    <div class="container-xl my-calendar">
+    <div class="container-xl my-calendar ">
         <div class="flecha-ayuda"></div>
         <div class="timetable">
             <section class="timeWrapper">
@@ -53,13 +53,13 @@
             
             <section class="titleWrapper">
                 <div class="timeColumn"></div>
-                    <div class="monday">LUNES</div>
-                    <div class="tuesday">MARTES</div>
-                    <div class="wednesday">MIÉRCOLES</div>
-                    <div class="thursday">JUEVES</div>
-                    <div class="friday">VIERNES</div>
-                    <div class="saturday">SÁBADO</div>
-                    <div class="sunday">DOMINGO</div>
+                    <div class="monday ">LUNES</div>
+                    <div class="tuesday ">MARTES</div>
+                    <div class="wednesday ">MIÉRCOLES</div>
+                    <div class="thursday ">JUEVES</div>
+                    <div class="friday ">VIERNES</div>
+                    <div class="saturday ">SÁBADO</div>
+                    <div class="sunday ">DOMINGO</div>
                 </section>
              
             <!--<a class="tableElement monday tenAM endEleven30AM" href="<?php home_url()?>/clases-directo/lunes-10/">ROCKET <br><span class="hora">10:00 a 11:15</span><br><span class="hora">David Cabezas</span></a>-->
