@@ -314,6 +314,7 @@
                                 }
                       }
 
+                      
                       var duracion_clase = reproductor.getDuration();
 
                       if ((Math.round (x.position) == Math.round((20/100)*duracion_clase)) && played_0 == true){

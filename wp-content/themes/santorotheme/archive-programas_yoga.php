@@ -67,7 +67,7 @@ $query = new WP_Query( $args );?>
 
               <div class="video-item-autor-wrapper">
                 <p class="video-item-autor-name">
-                <?php the_field('visualizaciones') ?> <i class="far fa-eye"></i> | <?php $profesor = get_field('profesor'); echo $profesor['display_name']; ?> 
+                <?php the_field('visualizaciones')?> <i class="fas fa-user"></i> | <?php $profesor = get_field('profesor'); echo $profesor['display_name']; ?> 
                 </p>
               </div>
             </li>
