@@ -2514,6 +2514,7 @@ FIN TABLA CLASES EN DIRECTO */
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
+  
 }
 
 .titleWrapper {
@@ -2525,6 +2526,7 @@ FIN TABLA CLASES EN DIRECTO */
   border-bottom: 1px solid var(--text-color-light);
   justify-items: center;
   color: var(--text-color-light);
+  
 }
 
 .timeWrapper {
@@ -2532,12 +2534,14 @@ FIN TABLA CLASES EN DIRECTO */
   grid-row: 2 / 30;
   grid-gap: 10px;
   grid-template-rows: repeat(29, 25px);
+  
 }
 
 .tableElement {
   border: 1px solid var(--primary-color-light);
   padding: 1rem;
   text-align: center;
+  
 }
 
 .tableElement:hover {
@@ -3045,16 +3049,85 @@ input.button:hover {
       Smalldevices(landscapephones,576pxandup >> lo he puesto a 400 por que en ihp9one me salta el titulo a 3 lineas)
       *
       */
-
+/* 
+            *
+            phone device ( max 575px  ) 
+            *
+            */
 @media screen and (min-width: 400px) {
 }
 
+@media (max-width: 750px){
+  .timeWrapper{
+    display: none;
+  }
+  .timetable {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 75px repeat(7, 180px);
+    grid-template-rows: 33px repeat(3,15px);
+    margin: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+.toggle-nav {
+  display: inline-block !important;
+  float: right;
+  margin: 25px;
+  font-size: 2em;
+  transition: color linear 0.15s;
+}
+   
+a.toggle-nav:link, 
+a.toggle-nav:visited,
+a.toggle-nav:hover, 
+a.toggle-nav:active {
+  text-decoration: none;
+  color: #fff;
+} 
+
+
+.menu.main {
+  display: inline-block;
+  position: relative;
+  background: #fff;
+  text-align: left;
+}
+   
+.menu.main ul {
+  display: none;
+  position: absolute;
+  overflow: auto;
+  top: 0px;
+  right: 0px;
+  z-index: 999;
+  padding-right: 15px;
+  background: #fff;
+}
+   
+.menu.main ul li {
+  float: none;
+  display: block;
+  position: relative;
+  top: 0px;
+  right: 0px;
+  min-width: 200px;
+  background: #fff;
+  text-align: right;
+}
+   
+.main.menu li:after { 
+  content: none; 
+}
+}
 /* 
             *
             Medium devices (tablets, 768px and up) 
             *
             */
 @media screen and (min-width: 768px) {
+  
   .videos-programa-encabezado {
     text-align: left;
     font-size: 1.8rem;
@@ -3262,4 +3335,7 @@ input.button:hover {
     font-size: 1rem;
     padding: 0.5rem 1rem;
   }
+}
+.toggle-nav {
+  display: none !important;
 }

@@ -314,7 +314,7 @@
                                 }
                       }
 
-                      
+
                       var duracion_clase = reproductor.getDuration();
 
                       if ((Math.round (x.position) == Math.round((20/100)*duracion_clase)) && played_0 == true){
@@ -336,7 +336,7 @@
                     
 
                       // Para bloquear el vídeo a los 20 segundos
-                      if (x.position >= 20) {
+                      if (x.position >= 22) {
                         <?php if ($videoBlocked){ ?>
                               reproductor.pause();
         

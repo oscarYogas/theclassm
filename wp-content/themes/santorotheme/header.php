@@ -24,7 +24,7 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="<?php bloginfo('template_url'); ?>/img/favicon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
-
+  <script src="js/my-scripts.js"></script>
    <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-164701274-1"></script>
   <script>
@@ -208,6 +208,14 @@ wp_head();
         </div>
       </a>
       
+
+
+
+      
+
+
+
+
 
       <button class="hamburger" id="js-hamburger">
         <div class="line" id="js-line1"></div>
