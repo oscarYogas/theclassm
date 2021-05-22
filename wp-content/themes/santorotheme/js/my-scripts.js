@@ -4,17 +4,25 @@
  *
  */
 
+
+
+ 
+
+
+
  var hamburger = document.getElementById("js-hamburger");
  var line1 = document.getElementById("js-line1");
  var line2 = document.getElementById("js-line2");
  var line3 = document.getElementById("js-line3");
  var navigation = document.getElementById("js-navigation-wrapper");
+
  
  var toggleHamburger = () => {
    line1.classList.toggle("line1-rotate");
    line2.classList.toggle("line2-hidden");
    line3.classList.toggle("line3-rotate");
    navigation.classList.toggle("navigation-wrapper-visible");
+
  };
  
  hamburger.addEventListener("click", toggleHamburger);

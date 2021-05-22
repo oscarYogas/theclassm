@@ -1,16 +1,6 @@
 <?php
 
-function tutsplus_burger_menu_scripts() {
-     
-    wp_enqueue_script( 'burger-menu-script', get_stylesheet_directory_uri() . '/scripts/burger-menu.js', array( 'jquery' ) );
-  
-}
-add_action( 'wp_enqueue_scripts', 'tutsplus_burger_menu_scripts' );
-
-
-
-
- function load_scripts() {
+function load_scripts() {
 	 wp_register_script( 'my_scripts', get_template_directory_uri() . '/js/my-scripts.js', array(), false, true );
 	 
 	 wp_enqueue_script('my_scripts');

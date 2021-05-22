@@ -24,7 +24,7 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="<?php bloginfo('template_url'); ?>/img/favicon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
-  <script src="js/my-scripts.js"></script>
+
    <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-164701274-1"></script>
   <script>
@@ -209,15 +209,7 @@ wp_head();
       </a>
       
 
-
-
-      
-
-
-
-
-
-      <button class="hamburger" id="js-hamburger">
+      <button  class="hamburger" id="js-hamburger" >
         <div class="line" id="js-line1"></div>
         <div class="line line2" id="js-line2"></div>
         <div class="line line3" id="js-line3"></div>
@@ -401,6 +393,8 @@ else{
 
 
 <script>
+
+
     /**
  *
  * ANIMACION LOGO

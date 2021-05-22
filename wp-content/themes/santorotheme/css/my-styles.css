@@ -1443,20 +1443,30 @@ PROGRAMAS
 .post-item {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  filter: brightness(80%);
   margin: 3rem 1rem;
 }
 .post-item-image {
   width: 100%;
-  height: 332px;
+  height: 271px;
+  filter: brightness(79%);
+  object-fit: contain;
+    
+}
+.post-item-image:hover{
+  filter: brightness(100%);
+  transform: scale(1.05);
 }
 
 .post-item-title {
   font-size: 1.4rem;
-
   text-align: left;
   margin: 1rem 0rem 1rem 1rem;
 }
-
+.post-item-title:hover {
+  font-size: 1.41rem;
+  
+}
 .post-item-description {
   display: none;
   margin-left: 1rem;
@@ -2514,7 +2524,6 @@ FIN TABLA CLASES EN DIRECTO */
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
-  
 }
 
 .titleWrapper {
@@ -2526,7 +2535,6 @@ FIN TABLA CLASES EN DIRECTO */
   border-bottom: 1px solid var(--text-color-light);
   justify-items: center;
   color: var(--text-color-light);
-  
 }
 
 .timeWrapper {
@@ -2534,14 +2542,12 @@ FIN TABLA CLASES EN DIRECTO */
   grid-row: 2 / 30;
   grid-gap: 10px;
   grid-template-rows: repeat(29, 25px);
-  
 }
 
 .tableElement {
   border: 1px solid var(--primary-color-light);
   padding: 1rem;
   text-align: center;
-  
 }
 
 .tableElement:hover {
@@ -3057,7 +3063,222 @@ input.button:hover {
 @media screen and (min-width: 400px) {
 }
 
-@media (max-width: 750px){
+@media (max-width: 760px){
+  .post-item-image {
+    width: 100%;
+    height: 100px;
+    object-fit: contain;
+}
+
+
+
+    /*inicio tabla de clases directo */
+    .DaysWeeks{
+      font-size: 20px;
+      text-align: center;
+      font-weight: 600;
+    }
+  
+    .timetable {
+      display: grid;
+      grid-gap: 10px;   
+      margin: 0;
+      overflow-x: hidden;    
+      white-space: nowrap;
+      
+    }
+    
+    .titleWrapper {
+      display: none;
+    }
+    
+    .timeWrapper {
+      display: none;
+      
+    }
+    
+    .tableElement {
+      border: 1px solid var(--primary-color-light);
+      padding: 1rem;
+      text-align: center;
+      
+    }
+    
+    .tableElement:hover {
+      animation: pulse 0.5s linear 1;
+      cursor: pointer;
+    }
+    
+    @keyframes pulse {
+      50% {
+        transform: scale(0.97);
+      }
+    }
+    
+    .timeColumn {
+      grid-column: 1 / 2;
+    }
+    
+    .monday {
+      grid-column: 2 / 3;
+    }
+    
+     .alldays{
+       grid-column: 2 / 3;
+     }
+    .inicioMartes{
+      grid-row-start: 19;
+    }
+    .finMartes{
+     grid-row-end: 20; 
+    }
+    .inicioMiercoles{
+      grid-row-start:34;
+    }
+    .finMiercoles{
+      grid-row-end: 35;
+    }
+    .inicioJueves{
+      grid-row-start: 52;
+    }
+    .finJueves{
+      grid-row-end: 53;
+    }
+    .inicioViernes{
+      grid-row-start: 66;
+    }
+    .finViernes{
+      grid-row-end: 67;
+    }
+    .inicioSabado{
+      grid-row-start: 72;
+    }
+    .finSabado{
+      grid-row-end: 73;
+    }
+    .inicioDomingo{
+      grid-row-start: 78;
+    }
+    .finDomingo{
+      grid-row-end: 79;
+    }
+    .onePM {
+      grid-row-start: 12;
+    }
+    .eightAM3{
+      grid-row-start: 36;
+    }
+    .elevenAM6{
+      grid-row-start: 74;
+    }
+    .elevenAM7{
+      grid-row-start: 80;
+    }
+    .twoPm1{
+      grid-row-start: 6;
+    }
+    .twoPM2{
+      grid-row-start: 22 ;
+    }
+    .twoPM3{
+      grid-row-start: 40;
+    }
+    .twoPM4{
+      grid-row-start:54 ;
+    }  
+    .sixPM1{
+        grid-row-start: 9;
+    }
+    .sixPM2{
+      grid-row-start: 26;
+    }
+    .sixPM3{
+      grid-row-start: 44;
+    }
+    .sixPM4{
+      grid-row-start: 58;
+    }
+    .sixPM5{
+      grid-row-start: 68;
+    } 
+    .eightPM1{
+      grid-row-start: 13;
+    }
+    .eightPM2{
+      grid-row-start: 30;
+    }
+    .eightPM3{
+      grid-row-start: 48;
+    }
+    .eightPM4{
+     grid-row-start: 62; 
+    }
+ 
+    .endNine30AM3{
+      grid-row-end: 39;
+    }
+    .endTwelve30PM6{
+      grid-row-end: 77;
+    }
+    .endTwelve30PM7{
+      grid-row-end: 80;
+    }
+    .endThree30PM1{
+      grid-row-end:9 ;
+    }
+    .endThree30PM3{
+      grid-row-end: 43;
+    }
+    .endThree30PM4{
+      grid-row-end: 57;    }
+
+    .endSeven30PM1{
+      grid-row-end: 13;
+    }
+    .endSeven30PM2{
+      grid-row-end: 29;
+    }
+    .endSeven30PM3{
+      grid-row-end: 47;
+    }
+    .endSeven30PM4{
+      grid-row-end: 61;
+    }
+    .endSeven30PM5{
+      grid-row-end: 71;
+    }
+    .endThree30PM2{
+      grid-row-end: 25;
+    }
+
+    .endNine30PM1{
+      grid-row-end:17 ;
+    }
+    .endNine30PM2{
+      grid-row-end: 33;
+    }
+    .endNine30PM3{
+      grid-row-end: 51;
+    }
+    .endNine30PM4{
+      grid-row-end: 65;
+    }
+    
+    .hora {
+      color: var(--text-color-light);
+    }
+
+  /*Fin de tabla clases directo*/
+
+
+   .navigation-wrapper-visible {
+    left: 0 !important;
+  }
+  .post-item-title{
+    font-size: 14px ;
+  }
+  
+  
   .timeWrapper{
     display: none;
   }
@@ -3126,8 +3347,202 @@ a.toggle-nav:active {
             Medium devices (tablets, 768px and up) 
             *
             */
+
 @media screen and (min-width: 768px) {
+
+    /* TABLA DE CLASES EN DIRECTO DESDE LAS 8 AM*/
+.DaysWeeks{
+  text-align: center;
+  font-size: 25px;
+    font-weight: 600;
+}
+.timetable {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: 75px repeat(7, 180px);
+  grid-template-rows: 50px repeat(29, 25px);
+  margin: 4rem 1rem 2rem 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
   
+}
+.titleWrapper {
+  display: none;
+}
+.timeWrapper {
+  display: none; 
+}
+.tableElement {
+  border: 1px solid var(--primary-color-light);
+  padding: 1rem;
+  text-align: center; 
+}
+.tableElement:hover {
+  animation: pulse 0.5s linear 1;
+  cursor: pointer;
+}
+@keyframes pulse {
+  50% {
+    transform: scale(0.97);
+  }
+}
+.timeColumn {
+  grid-column: 1 / 2;
+}
+
+.first{
+  grid-column: 2 / 3;
+}
+.second {
+  grid-column: 3 / 4;
+}
+.third{
+  grid-column: 4 /5;
+}
+.inicioMartes{
+  grid-row-start:10 ;
+}
+.finMartes{
+  grid-row-end: 11;
+}
+.inicioMiercoles{
+  grid-row-start: 16;
+}
+.finMiercoles{
+  grid-row-end: 17;
+}
+.inicioJueves{
+  grid-row-start: 26;
+}
+.finJueves{
+  grid-row-end: 27;
+}
+.inicioViernes{
+  grid-row-start: 32;
+}
+.finViernes{
+  grid-row-end: 33;
+}
+.inicioSabado{
+  grid-row-start:38;
+}
+.finSabado{
+  grid-row-end: 39;
+}
+.inicioDomingo{
+  grid-row-start: 44 ;
+}
+.finDomingo{
+  grid-row-end: 45;
+}
+.eightAM3{
+  grid-row-start: 18;
+}
+.elevenAM6{
+  grid-row-start: 40;
+}
+.elevenAM7{
+  grid-row-start: 46;
+}
+.twoPm1{
+  grid-row-start: 2;
+}
+.twoPM2{
+  grid-row-start: 12;
+}
+.twoPM3{
+  grid-row-start:18;
+}
+.twoPM4{
+  grid-row-start: 28 ;
+}
+.sixPM1{
+  grid-row-start: 2;
+}
+.sixPM2{
+  grid-row-start: 12;
+}
+.sixPM3{
+  grid-row-start: 18;
+}
+.sixPM4{
+  grid-row-start: 28;
+}
+.sixPM5{
+  grid-row-start: 34;
+}
+.eightPM1{
+  grid-row-start: 6;
+}
+.eightPM2{
+  grid-row-start: 12;
+}
+.eightPM3{
+  grid-row-start: 22;
+}
+.eightPM4{
+  grid-row-start: 28;
+}
+.endTwelve30PM6{
+  grid-row-end: 43;
+}
+.endTwelve30PM7{
+  grid-row-end: 49;
+}
+.endNine30AM3{
+  grid-row-end: 21;
+}
+.endThree30PM1{
+  grid-row-end: 5;
+}
+.endThree30PM2{
+  grid-row-end: 15;
+}
+.endThree30PM3{
+  grid-row-end: 21;
+}
+.endThree30PM4{
+  grid-row-end: 31;
+}
+.endSeven30PM1{
+  grid-row-end: 5;
+}
+.endSeven30PM2{
+  grid-row-end: 15;
+}
+.endSeven30PM3{
+  grid-row-end: 21;
+}
+.endSeven30PM4{
+  grid-row-end: 31;
+}
+.endSeven30PM5{
+  grid-row-end: 37;
+}
+.endNine30PM1{
+  grid-row-end: 9;
+}
+.endNine30PM2{
+  grid-row-end: 15;
+}
+.endNine30PM3{
+  grid-row-end: 25;
+}
+.endNine30PM4{
+  grid-row-end: 31;
+}
+
+
+.hora {
+  color: var(--text-color-light);
+}
+
+/* FIN TABLA CLASES EN DIRECTO*/
+
+
+
+
   .videos-programa-encabezado {
     text-align: left;
     font-size: 1.8rem;
@@ -3237,6 +3652,196 @@ a.toggle-nav:active {
       */
 
 @media screen and (min-width: 992px) {
+   /* TABLA DE CLASES EN DIRECTO DESDE LAS 8 AM*/
+.DaysWeeks{
+  text-align: center;
+  font-size: 25px;
+    font-weight: 600;
+}
+.timetable {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: 75px repeat(7, 180px);
+  grid-template-rows: 50px repeat(29, 25px);
+  margin: 4rem 1rem 2rem 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  
+}
+.titleWrapper {
+  display: none;
+}
+.timeWrapper {
+  display: none; 
+}
+.tableElement {
+  border: 1px solid var(--primary-color-light);
+  padding: 1rem;
+  text-align: center; 
+}
+.tableElement:hover {
+  animation: pulse 0.5s linear 1;
+  cursor: pointer;
+}
+@keyframes pulse {
+  50% {
+    transform: scale(0.97);
+  }
+}
+.timeColumn {
+  grid-column: 1 / 2;
+}
+
+.first{
+  grid-column: 2 / 3;
+}
+.second {
+  grid-column: 3 / 4;
+}
+.third{
+  grid-column: 4 /5;
+}
+.inicioMartes{
+  grid-row-start:10 ;
+}
+.finMartes{
+  grid-row-end: 11;
+}
+.inicioMiercoles{
+  grid-row-start: 16;
+}
+.finMiercoles{
+  grid-row-end: 17;
+}
+.inicioJueves{
+  grid-row-start: 26;
+}
+.finJueves{
+  grid-row-end: 27;
+}
+.inicioViernes{
+  grid-row-start: 32;
+}
+.finViernes{
+  grid-row-end: 33;
+}
+.inicioSabado{
+  grid-row-start:38;
+}
+.finSabado{
+  grid-row-end: 39;
+}
+.inicioDomingo{
+  grid-row-start: 44 ;
+}
+.finDomingo{
+  grid-row-end: 45;
+}
+.eightAM3{
+  grid-row-start: 18;
+}
+.elevenAM6{
+  grid-row-start: 40;
+}
+.elevenAM7{
+  grid-row-start: 46;
+}
+.twoPm1{
+  grid-row-start: 2;
+}
+.twoPM2{
+  grid-row-start: 12;
+}
+.twoPM3{
+  grid-row-start:18;
+}
+.twoPM4{
+  grid-row-start: 28 ;
+}
+.sixPM1{
+  grid-row-start: 2;
+}
+.sixPM2{
+  grid-row-start: 12;
+}
+.sixPM3{
+  grid-row-start: 18;
+}
+.sixPM4{
+  grid-row-start: 28;
+}
+.sixPM5{
+  grid-row-start: 34;
+}
+.eightPM1{
+  grid-row-start: 6;
+}
+.eightPM2{
+  grid-row-start: 12;
+}
+.eightPM3{
+  grid-row-start: 22;
+}
+.eightPM4{
+  grid-row-start: 28;
+}
+.endTwelve30PM6{
+  grid-row-end: 43;
+}
+.endTwelve30PM7{
+  grid-row-end: 49;
+}
+.endNine30AM3{
+  grid-row-end: 21;
+}
+.endThree30PM1{
+  grid-row-end: 5;
+}
+.endThree30PM2{
+  grid-row-end: 15;
+}
+.endThree30PM3{
+  grid-row-end: 21;
+}
+.endThree30PM4{
+  grid-row-end: 31;
+}
+.endSeven30PM1{
+  grid-row-end: 5;
+}
+.endSeven30PM2{
+  grid-row-end: 15;
+}
+.endSeven30PM3{
+  grid-row-end: 21;
+}
+.endSeven30PM4{
+  grid-row-end: 31;
+}
+.endSeven30PM5{
+  grid-row-end: 37;
+}
+.endNine30PM1{
+  grid-row-end: 9;
+}
+.endNine30PM2{
+  grid-row-end: 15;
+}
+.endNine30PM3{
+  grid-row-end: 25;
+}
+.endNine30PM4{
+  grid-row-end: 31;
+}
+
+
+.hora {
+  color: var(--text-color-light);
+}
+
+/* FIN TABLA CLASES EN DIRECTO*/
+  
   .programa {
     display: grid;
     grid-template-columns: 1fr 300px;
@@ -3272,7 +3877,433 @@ a.toggle-nav:active {
       *
       */
 @media screen and (min-width: 1200px) {
+  
+  
+  .DaysWeeks{
+    display: none;
+    /* TABLA DE CLASES EN DIRECTO DESDE LAS 8 AM*/
+  }
+    .timetable {
+      display: grid;
+      grid-gap: 10px;
+      grid-template-columns: 75px repeat(7, 180px);
+      grid-template-rows: 50px repeat(29, 25px);
+      margin: 4rem 1rem 2rem 1rem;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      }
+    
+    .titleWrapper {
+      display: grid;
+      grid-column: 1 / 9;
+      grid-gap: 10px;
+      grid-template-columns: 75px repeat(7, 180px);
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--text-color-light);
+      justify-items: center;
+      color: var(--text-color-light);
+    }
+    
+    .timeWrapper {
+      display: grid;
+      grid-row: 2 / 30;
+      grid-gap: 10px;
+      grid-template-rows: repeat(29, 25px);
+    }
+    
+    .tableElement {
+      border: 1px solid var(--primary-color-light);
+      padding: 1rem;
+      text-align: center;
+    }
+    
+    .tableElement:hover {
+      animation: pulse 0.5s linear 1;
+      cursor: pointer;
+    }
+    
+    @keyframes pulse {
+      50% {
+        transform: scale(0.97);
+      }
+    }
+    
+    .timeWrapper div:nth-of-type(1) {
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+    }
+    .timeWrapper div:nth-of-type(2) {
+      grid-column: 1 / 2;
+      grid-row: 2 / 3;
+    }
+    .timeWrapper div:nth-of-type(3) {
+      grid-column: 1 / 2;
+      grid-row: 3 / 4;
+    }
+    .timeWrapper div:nth-of-type(4) {
+      grid-column: 1 / 2;
+      grid-row: 4 / 5;
+    }
+    .timeWrapper div:nth-of-type(5) {
+      grid-column: 1 / 2;
+      grid-row: 5 / 6;
+    }
+    .timeWrapper div:nth-of-type(6) {
+      grid-column: 1 / 2;
+      grid-row: 6 / 7;
+    }
+    .timeWrapper div:nth-of-type(7) {
+      grid-column: 1 / 2;
+      grid-row: 7 / 8;
+    }
+    .timeWrapper div:nth-of-type(8) {
+      grid-column: 1 / 2;
+      grid-row: 8 / 9;
+    }
+    .timeWrapper div:nth-of-type(9) {
+      grid-column: 1 / 2;
+      grid-row: 9 / 10;
+    }
+    .timeWrapper div:nth-of-type(10) {
+      grid-column: 1 / 2;
+      grid-row: 10 / 11;
+    }
+    .timeWrapper div:nth-of-type(11) {
+      grid-column: 1 / 2;
+      grid-row: 11 / 12;
+    }
+    .timeWrapper div:nth-of-type(12) {
+      grid-column: 1 / 2;
+      grid-row: 12 / 13;
+    }
+    .timeWrapper div:nth-of-type(13) {
+      grid-column: 1 / 2;
+      grid-row: 13 / 14;
+    }
+    .timeWrapper div:nth-of-type(14) {
+      grid-column: 1 / 2;
+      grid-row: 14 / 15;
+    }
+    .timeWrapper div:nth-of-type(15) {
+      grid-column: 1 / 2;
+      grid-row: 15 / 16;
+    }
+    .timeWrapper div:nth-of-type(16) {
+      grid-column: 1 / 2;
+      grid-row: 16 / 17;
+    }
+    .timeWrapper div:nth-of-type(17) {
+      grid-column: 1 / 2;
+      grid-row: 17 / 18;
+    }
+    .timeWrapper div:nth-of-type(18) {
+      grid-column: 1 / 2;
+      grid-row: 18 / 19;
+    }
+    .timeWrapper div:nth-of-type(19) {
+      grid-column: 1 / 2;
+      grid-row: 19 / 20;
+    }
+    .timeWrapper div:nth-of-type(20) {
+      grid-column: 1 / 2;
+      grid-row: 20 / 21;
+    }
+    .timeWrapper div:nth-of-type(21) {
+      grid-column: 1 / 2;
+      grid-row: 21 / 22;
+    }
+    .timeWrapper div:nth-of-type(22) {
+      grid-column: 1 / 2;
+      grid-row: 22 / 23;
+    }
+    .timeWrapper div:nth-of-type(23) {
+      grid-column: 1 / 2;
+      grid-row: 23 / 24;
+    }
+    .timeWrapper div:nth-of-type(24) {
+      grid-column: 1 / 2;
+      grid-row: 24 / 25;
+    }
+    .timeWrapper div:nth-of-type(25) {
+      grid-column: 1 / 2;
+      grid-row: 25 / 26;
+    }
+    .timeWrapper div:nth-of-type(26) {
+      grid-column: 1 / 2;
+      grid-row: 26 / 27;
+    }
+    .timeWrapper div:nth-of-type(27) {
+      grid-column: 1 / 2;
+      grid-row: 27 / 28;
+    }
+    .timeWrapper div:nth-of-type(28) {
+      grid-column: 1 / 2;
+      grid-row: 28 / 29;
+    }
+    .timeWrapper div:nth-of-type(29) {
+      grid-column: 1 / 2;
+      grid-row: 29 / 30;
+    }
+    
+    .timeColumn {
+      grid-column: 1 / 2;
+    }
+    
+    .monday {
+      grid-column: 2 / 3;
+    }
+    
+    .tuesday {
+      grid-column: 3 / 4;
+    }
+    
+    .wednesday {
+      grid-column: 4 / 5;
+    }
+    
+    .thursday {
+      grid-column: 5 / 6;
+    }
+    
+    .friday {
+      grid-column: 6 / 7;
+    }
+    
+    .saturday {
+      grid-column: 7 / 8;
+    }
+    
+    .sunday {
+      grid-column: 8 / 9;
+    }
+    
+    .eightAM {
+      grid-row-start: 2;
+    }
+    .eight30AM {
+      grid-row-start: 3;
+    }
+    
+    .nineAM {
+      grid-row-start: 4;
+    }
+    
+    .nine30AM {
+      grid-row-start: 5;
+    }
+    
+    .tenAM {
+      grid-row-start: 6;
+    }
+    
+    .ten30AM {
+      grid-row-start: 7;
+    }
+    
+    .elevenAM {
+      grid-row-start: 8;
+    }
+    
+    .eleven30AM {
+      grid-row-start: 9;
+    }
+    
+    .twelvePM {
+      grid-row-start: 10;
+    }
+    
+    .twelve30PM {
+      grid-row-start: 11;
+    }
+    
+    .onePM {
+      grid-row-start: 12;
+    }
+    
+    .one30PM {
+      grid-row-start: 13;
+    }
+    
+    .twoPM {
+      grid-row-start: 14;
+    }
+    
+    .two30PM {
+      grid-row-start: 15;
+    }
+    
+    .threePM {
+      grid-row-start: 16;
+    }
+    
+    .three30PM {
+      grid-row-start: 17;
+    }
+    
+    .fourPM {
+      grid-row-start: 18;
+    }
+    
+    .four30PM {
+      grid-row-start: 19;
+    }
+    
+    .fivePM {
+      grid-row-start: 20;
+    }
+    
+    .five30PM {
+      grid-row-start: 21;
+    }
+    .sixPM {
+      grid-row-start: 22;
+    }
+    .six30PM {
+      grid-row-start: 23;
+    }
+    .sevenPM {
+      grid-row-start: 24;
+    }
+    
+    .seven30PM {
+      grid-row-start: 25;
+    }
+    
+    .eightPM {
+      grid-row-start: 26;
+    }
+    
+    .eight30PM {
+      grid-row-start: 27;
+    }
+    .ninePM {
+      grid-row-start: 28;
+    }
+    .nine30PM {
+      grid-row-start: 29;
+    }
+    .tenPM {
+      grid-row-start: 30;
+    }
+    
+    .endEightAM {
+      grid-row-end: 2;
+    }
+    .endEight30AM {
+      grid-row-end: 3;
+    }
+    
+    .endNineAM {
+      grid-row-end: 4;
+    }
+    
+    .endNine30AM {
+      grid-row-end: 5;
+    }
+    
+    .endTenAM {
+      grid-row-end: 6;
+    }
+    
+    .endTen30AM {
+      grid-row-end: 7;
+    }
+    
+    .endElevenAM {
+      grid-row-end: 8;
+    }
+    
+    .endEleven30AM {
+      grid-row-end: 9;
+    }
+    
+    .endTwelvePM {
+      grid-row-end: 10;
+    }
+    
+    .endTwelve30PM {
+      grid-row-end: 11;
+    }
+    
+    .endOnePM {
+      grid-row-end: 12;
+    }
+    
+    .endOne30PM {
+      grid-row-end: 13;
+    }
+    
+    .endTwoPM {
+      grid-row-end: 14;
+    }
+    
+    .endTwo30PM {
+      grid-row-end: 15;
+    }
+    
+    .endThreePM {
+      grid-row-end: 16;
+    }
+    
+    .endThree30PM {
+      grid-row-end: 17;
+    }
+    
+    .endFourPM {
+      grid-row-end: 18;
+    }
+    
+    .endFour30PM {
+      grid-row-end: 19;
+    }
+    
+    .endFivePM {
+      grid-row-end: 20;
+    }
+    
+    .endFive30PM {
+      grid-row-end: 21;
+    }
+    .endSixPM {
+      grid-row-end: 22;
+    }
+    .endSix30PM {
+      grid-row-end: 23;
+    }
+    .endSevenPM {
+      grid-row-end: 24;
+    }
+    
+    .endSeven30PM {
+      grid-row-end: 25;
+    }
+    
+    .endEightPM {
+      grid-row-end: 26;
+    }
+    
+    .endEight30PM {
+      grid-row-end: 27;
+    }
+    .endNinePM {
+      grid-row-end: 28;
+    }
+    .endNine30PM {
+      grid-row-end: 29;
+    }
+    .endTenPM {
+      grid-row-end: 30;
+    }
+    
+    .hora {
+      color: var(--text-color-light);
+    }
+    
+    /* FIN TABLA CLASES EN DIRECTO*/
+  }
   /* para que desaprezca el hamburger y se ponga el menu en la cabecera */
+
   .hamburger {
     display: none;
   }
@@ -3311,6 +4342,7 @@ a.toggle-nav:active {
     font-size: 1.2rem;
     font-weight: 700;
   }
+
 
   .navigation-link:hover {
     border-bottom: 1px solid var(--primary-color);
