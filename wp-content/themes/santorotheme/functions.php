@@ -996,3 +996,30 @@ add_action('wp_enqueue_scripts', function () {
 	wp_enqueue_style('FrontageW00-font-css', get_stylesheet_directory_uri() . '/fonts/FrontageW00/stylesheet.css');
 	wp_enqueue_style('Posterama2001W04-font-css', get_stylesheet_directory_uri() . '/fonts/Posterama2001W04/stylesheet.css');
 	});
+
+
+	add_action ('wp_print_scripts', function () {
+		if (wp_script_is ('wc-password-strength-meter', 'enqueued'))
+		wp_dequeue_script ('wc-password-strength-meter');
+		}, 100);
+
+		
+		// Incluir Bootstrap CSS
+		function bootstrap_css() {
+		 wp_enqueue_style( 'bootstrap_css', 
+			   get_stylesheet_directory_uri() . '/css/bootstrap.min.css', 
+			   array(), 
+			   '4.6.0'
+			   ); 
+		}
+		add_action( 'wp_enqueue_scripts', 'bootstrap_css');
+		
+		// Incluir Bootstrap JS
+		function bootstrap_js() {
+		 wp_enqueue_script( 'bootstrap_js', 
+			   get_stylesheet_directory_uri() . '/js/bootstrap.min.js', 
+			   array('jquery'), 
+			   '4.6.0', 
+			   true); 
+		}
+		add_action( 'wp_enqueue_scripts', 'bootstrap_js');

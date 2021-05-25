@@ -17,13 +17,13 @@
  * needs please refer to https://docs.woocommerce.com/document/woocommerce-memberships/ for more information.
  *
  * @author    SkyVerge
- * @copyright Copyright (c) 2014-2020, SkyVerge, Inc. (info@skyverge.com)
+ * @copyright Copyright (c) 2014-2021, SkyVerge, Inc. (info@skyverge.com)
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
 use SkyVerge\WooCommerce\Memberships\Profile_Fields;
 use SkyVerge\WooCommerce\Memberships\Profile_Fields\Profile_Field_Definition;
-use SkyVerge\WooCommerce\PluginFramework\v5_7_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_10_6 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -225,14 +225,14 @@ class WC_Memberships_Admin_User_Memberships {
 
 			?>
 			<script type="text/javascript">
-				jQuery( document ).ready( function( $ ) {
+				( function( $ ) {
 					var exportLabel = '<?php esc_html_e( 'Export to CSV', 'woocommerce-memberships' ); ?>',
 						deleteLabel = '<?php esc_html_e( 'Delete', 'woocommerce-memberships' ); ?>';
 					$( '<option>' ).val( 'export' ).text( exportLabel ).appendTo( 'select[name="action"]' );
 					$( '<option>' ).val( 'export' ).text( exportLabel ).appendTo( 'select[name="action2"]' );
 					$( '<option>' ).val( 'delete' ).text( deleteLabel ).appendTo( "select[name='action']" );
 					$( '<option>' ).val( 'delete' ).text( deleteLabel ).appendTo( "select[name='action2']" );
-				} );
+				} ) ( jQuery );
 			</script>
 			<?php
 

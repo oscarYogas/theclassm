@@ -47,11 +47,14 @@ class WC_Subscriptions_Switcher {
 		// We need to create subscriptions on checkout and want to do it after almost all other extensions have added their products/items/fees
 		add_action( 'woocommerce_checkout_order_processed', array( __CLASS__, 'process_checkout' ), 50, 2 );
 
+		// We need to create subscriptions on checkout and want to do it after almost all other extensions have added their products/items/fees
+		add_action( '__experimental_woocommerce_blocks_checkout_order_processed', array( __CLASS__, 'process_checkout' ), 50, 1 );
+
 		// When creating an order, add meta if it's for switching a subscription
 		add_action( 'woocommerce_checkout_update_order_meta', array( __CLASS__, 'add_order_meta' ), 10, 2 );
 
-		// Add a renewal orders section to the Related Orders meta box
-		add_action( 'woocommerce_subscriptions_related_orders_meta_box_rows', array( __CLASS__, 'switch_order_meta_box_rows' ), 10 );
+		// From blocks - When creating an order, add meta if it's for switching a subscription
+		add_action( '__experimental_woocommerce_blocks_checkout_update_order_meta', array( __CLASS__, 'add_order_meta' ), 10, 1 );
 
 		// Don't allow switching to the same product
 		add_filter( 'woocommerce_add_to_cart_validation', array( __CLASS__, 'validate_switch_request' ), 10, 4 );
@@ -138,6 +141,10 @@ class WC_Subscriptions_Switcher {
 		add_action( 'woocommerce_grant_product_download_permissions', array( __CLASS__, 'delay_granting_download_permissions' ), 9, 1 );
 		add_action( 'woocommerce_subscriptions_switch_completed', array( __CLASS__, 'grant_download_permissions' ), 9, 1 );
 		add_action( 'woocommerce_subscription_checkout_switch_order_processed', array( __CLASS__, 'log_switches' ) );
+		add_filter( 'woocommerce_subscriptions_admin_related_orders_to_display', array( __CLASS__, 'display_switches_in_related_order_metabox' ), 10, 3 );
+
+		// Override the add to cart text when switch args are present.
+		add_filter( 'woocommerce_product_single_add_to_cart_text', array( __CLASS__, 'display_switch_add_to_cart_text' ), 10, 1 );
 	}
 
 	/**
@@ -558,7 +565,7 @@ class WC_Subscriptions_Switcher {
 			$subscription = wcs_get_subscription( $subscription );
 		}
 
-		$product = wc_get_product( $item['product_id'] );
+		$product               = wc_get_product( $item['product_id'] );
 		$parent_products       = WC_Subscriptions_Product::get_visible_grouped_parent_product_ids( $product );
 		$additional_query_args = array();
 
@@ -569,7 +576,13 @@ class WC_Subscriptions_Switcher {
 			$switch_url = get_permalink( $product->get_id() );
 
 			if ( ! empty( $_GET ) && is_product() ) {
-				$product_variations    = $product->get_variation_attributes();
+				$product_variations = array();
+
+				// Attributes in GET args are prefixed with attribute_ so to make sure we compare them correctly, apply the same prefix.
+				foreach ( $product->get_variation_attributes() as $attribute => $value ) {
+					$product_variations[ wcs_maybe_prefix_key( strtolower( $attribute ), 'attribute_' ) ] = $value;
+				}
+
 				$additional_query_args = array_intersect_key( $_GET, $product_variations );
 			}
 		}
@@ -757,11 +770,11 @@ class WC_Subscriptions_Switcher {
 	 * If the order being generated is for switching a subscription, keep a record of some of the switch
 	 * routines meta against the order.
 	 *
-	 * @param int $order_id The ID of a WC_Order object
-	 * @param array $posted The data posted on checkout
+	 * @param int|\WC_Order $order_id The ID of a WC_Order object
+	 * @param array         $posted The data posted on checkout
 	 * @since 1.4
 	 */
-	public static function add_order_meta( $order_id, $posted ) {
+	public static function add_order_meta( $order_id, $posted = array() ) {
 
 		$order = wc_get_order( $order_id );
 
@@ -840,7 +853,7 @@ class WC_Subscriptions_Switcher {
 
 				if ( wcs_is_subscription( $order ) ) {
 					if ( ! empty( $switch_details['item_id'] ) ) {
-						$order_item->add_meta_data( '_switched_subscription_item_id', $switch_details['item_id'] );
+						$order_item->update_meta_data( '_switched_subscription_item_id', $switch_details['item_id'] );
 					}
 				} else {
 					$sign_up_fee_prorated = WC()->cart->cart_contents[ $cart_item_key ]['data']->get_meta( '_subscription_sign_up_fee_prorated', true );
@@ -887,11 +900,12 @@ class WC_Subscriptions_Switcher {
 	 * If the item is on a new billing schedule and there are other items on the existing subscription, the old item will
 	 * be removed and the new item will be added to a new subscription by @see WC_Subscriptions_Checkout::process_checkout()
 	 *
-	 * @param int $order_id The post_id of a shop_order post/WC_Order object
-	 * @param array $posted_data The data posted on checkout
+	 * @param int|\WC_Order $order_id The post_id of a shop_order post/WC_Order
+	 *  object
+	 * @param array         $posted_data The data posted on checkout
 	 * @since 2.0
 	 */
-	public static function process_checkout( $order_id, $posted_data ) {
+	public static function process_checkout( $order_id, $posted_data = array() ) {
 		global $wpdb;
 
 		if ( ! WC_Subscriptions_Cart::cart_contains_subscription() ) {
@@ -1164,53 +1178,7 @@ class WC_Subscriptions_Switcher {
 	 */
 	public static function maybe_update_subscription_address( $order, $subscription ) {
 		$subscription->set_address( array_diff_assoc( $order->get_address( 'billing' ), $subscription->get_address( 'billing' ) ), 'billing' );
-		$subscription->set_address( array_diff_assoc( $order->get_address(), $subscription->get_address() ), 'shipping' );
-	}
-
-	/**
-	 * If the subscription purchased in an order has since been switched, include a link to the order placed to switch the subscription
-	 * in the "Related Orders" meta box (displayed on the Edit Order screen).
-	 *
-	 * @param WC_Order $order The current order.
-	 * @since 1.4
-	 */
-	public static function switch_order_meta_box_rows( $post ) {
-
-		$subscriptions          = array();
-		$switched_subscriptions = array();
-		$orders                 = array();
-
-		// On the subscription page, just show related orders
-		if ( wcs_is_subscription( $post->ID ) ) {
-
-			// Select the orders which switched item/s from this subscription
-			$orders = wcs_get_switch_orders_for_subscription( $post->ID );
-
-			foreach ( $orders as $order_id => $order ) {
-				wcs_set_objects_property( $order, 'relationship', __( 'Switch Order', 'woocommerce-subscriptions' ), 'set_prop_only' );
-			}
-
-			// Select the subscriptions which had item/s switched to this subscription by its parent order
-			if ( ! empty( $post->post_parent ) ) {
-				$switched_subscriptions = wcs_get_subscriptions_for_switch_order( $post->post_parent );
-			}
-
-		// On the Edit Order screen, show any subscriptions with items switched by this order
-		} else {
-			$switched_subscriptions = wcs_get_subscriptions_for_switch_order( $post->ID );
-		}
-
-		if ( is_array( $switched_subscriptions ) ) {
-			foreach ( $switched_subscriptions as $subscription_id => $subscription ) {
-				wcs_set_objects_property( $subscription, 'relationship', __( 'Switched Subscription', 'woocommerce-subscriptions' ), 'set_prop_only' );
-				$orders[ $subscription_id ] = $subscription;
-			}
-		}
-
-		foreach ( $orders as $order ) {
-			include( plugin_dir_path( WC_Subscriptions::$plugin_file ) . 'includes/admin/meta-boxes/views/html-related-orders-row.php' );
-		}
-
+		$subscription->set_address( array_diff_assoc( $order->get_address( 'shipping' ), $subscription->get_address( 'shipping' ) ), 'shipping' );
 	}
 
 	/**
@@ -1735,8 +1703,6 @@ class WC_Subscriptions_Switcher {
 	 * @since 2.1
 	 */
 	public static function process_subscription_switches( $order_id, $order_old_status, $order_new_status ) {
-		global $wpdb;
-
 		$order            = wc_get_order( $order_id );
 		$switch_processed = wcs_get_objects_property( $order, 'completed_subscription_switch' );
 
@@ -1749,16 +1715,17 @@ class WC_Subscriptions_Switcher {
 		if ( $order_completed ) {
 			try {
 				// Start transaction if available
-				$wpdb->query( 'START TRANSACTION' );
+				$transaction = new WCS_SQL_Transaction();
+				$transaction->start();
 
 				self::complete_subscription_switches( $order );
 
 				wcs_set_objects_property( $order, 'completed_subscription_switch', 'true' );
 
-				$wpdb->query( 'COMMIT' );
+				$transaction->commit();
 
 			} catch ( Exception $e ) {
-				$wpdb->query( 'ROLLBACK' );
+				$transaction->rollback();
 				throw $e;
 			}
 
@@ -1863,6 +1830,17 @@ class WC_Subscriptions_Switcher {
 		}
 
 		return $product_subtotal;
+	}
+
+	/**
+	 * Gets the switch direction of a cart item.
+	 *
+	 * @param array $cart_item Cart item object.
+	 * @return string|null Cart item subscription switch direction or null.
+	 */
+	public static function get_cart_item_switch_type( $cart_item ) {
+
+		return isset( $cart_item['subscription_switch'], $cart_item['subscription_switch']['upgraded_or_downgraded'] ) ? $cart_item['subscription_switch']['upgraded_or_downgraded'] : null;
 	}
 
 	/**
@@ -2221,13 +2199,14 @@ class WC_Subscriptions_Switcher {
 	 * @param WC_Subscription $subscription         The Subscription.
 	 * @param WC_Order_Item   $subscription_item    The current line item on the subscription to map back through the related orders.
 	 * @param string          $include_sign_up_fees Optional. Whether to include the sign-up fees paid. Can be 'include_sign_up_fees' or 'exclude_sign_up_fees'. Default 'include_sign_up_fees'.
+	 * @param WC_Order[]      $orders_to_include    Optional. The orders to include in the total.
 	 *
 	 * @return float The total amount paid for an existing subscription line item.
 	 */
-	public static function calculate_total_paid_since_last_order( $subscription, $subscription_item, $include_sign_up_fees = 'include_sign_up_fees' ) {
+	public static function calculate_total_paid_since_last_order( $subscription, $subscription_item, $include_sign_up_fees = 'include_sign_up_fees', $orders_to_include = array() ) {
 		$found_item      = false;
 		$item_total_paid = 0;
-		$orders          = $subscription->get_related_orders( 'all', array( 'parent', 'renewal', 'switch' ) );
+		$orders          = empty( $orders_to_include ) ? $subscription->get_related_orders( 'all', array( 'parent', 'renewal', 'switch' ) ) : $orders_to_include;
 
 		// We need the orders sorted by the date they were paid, with the newest first.
 		wcs_sort_objects( $orders, 'date_paid', 'descending' );
@@ -2314,6 +2293,46 @@ class WC_Subscriptions_Switcher {
 		if ( isset( self::$switch_totals_calculator ) ) {
 			self::$switch_totals_calculator->log_switches();
 		}
+	}
+
+	/**
+	 * Adds switch orders or switched subscriptions to the related order meta box.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @param WC_Abstract_Order[] $orders_to_display The list of related orders to display.
+	 * @param WC_Subscription[]   $subscriptions     The list of related subscriptions.
+	 * @param WP_Post             $post              The order or subscription post being viewed.
+	 *
+	 * @return $orders_to_display The orders/subscriptions to display in the meta box.
+	 */
+	public static function display_switches_in_related_order_metabox( $orders_to_display, $subscriptions, $post ) {
+		$switched_subscriptions = array();
+
+		// On the subscription page, just show related orders.
+		if ( wcs_is_subscription( $post->ID ) ) {
+
+			foreach ( wcs_get_switch_orders_for_subscription( $post->ID ) as $order ) {
+				$order->update_meta_data( '_relationship', __( 'Switch Order', 'woocommerce-subscriptions' ) );
+				$orders_to_display[] = $order;
+			}
+
+			// Display the subscriptions which had item/s switched to this subscription by its parent order.
+			if ( ! empty( $post->post_parent ) ) {
+				$switched_subscriptions = wcs_get_subscriptions_for_switch_order( $post->post_parent );
+			}
+
+		// On the Edit Order screen, show any subscriptions with items switched by this order.
+		} else {
+			$switched_subscriptions = wcs_get_subscriptions_for_switch_order( $post->ID );
+		}
+
+		foreach ( $switched_subscriptions as $subscription ) {
+			$subscription->update_meta_data( '_relationship', __( 'Switched Subscription', 'woocommerce-subscriptions' ) );
+			$orders_to_display[] = $subscription;
+		}
+
+		return $orders_to_display;
 	}
 
 	/** Deprecated Methods **/
@@ -2515,6 +2534,22 @@ class WC_Subscriptions_Switcher {
 		}
 
 		return $cart_contains_subscription_creating_switch;
+	}
+
+	/**
+	 * Filters the add to cart text for products during a switch request.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @param  string $add_to_cart_text The product's default add to cart text.
+	 * @return string 'Switch subscription' during a switch, or the default add to cart text if switch args aren't present.
+	 */
+	public static function display_switch_add_to_cart_text( $add_to_cart_text ) {
+		if ( isset( $_GET['switch-subscription'], $_GET['item'] ) ) {
+			$add_to_cart_text = _x( 'Switch subscription', 'add to cart button text while switching a subscription', 'woocommerce-subscriptions' );
+		}
+
+		return $add_to_cart_text;
 	}
 
 	/**
@@ -2808,5 +2843,52 @@ class WC_Subscriptions_Switcher {
 		}
 
 		return $related_orders;
+	}
+
+	/**
+	 * If the subscription purchased in an order has since been switched, include a link to the order placed to switch the subscription
+	 * in the "Related Orders" meta box (displayed on the Edit Order screen).
+	 *
+	 * @param WC_Order $order The current order.
+	 * @since 1.4
+	 * @deprecated 3.1.0
+	 */
+	public static function switch_order_meta_box_rows( $post ) {
+		wcs_deprecated_function( __METHOD__, '3.1.0' );
+		$subscriptions          = array();
+		$switched_subscriptions = array();
+		$orders                 = array();
+
+		// On the subscription page, just show related orders
+		if ( wcs_is_subscription( $post->ID ) ) {
+
+			// Select the orders which switched item/s from this subscription
+			$orders = wcs_get_switch_orders_for_subscription( $post->ID );
+
+			foreach ( $orders as $order_id => $order ) {
+				wcs_set_objects_property( $order, 'relationship', __( 'Switch Order', 'woocommerce-subscriptions' ), 'set_prop_only' );
+			}
+
+			// Select the subscriptions which had item/s switched to this subscription by its parent order
+			if ( ! empty( $post->post_parent ) ) {
+				$switched_subscriptions = wcs_get_subscriptions_for_switch_order( $post->post_parent );
+			}
+
+		// On the Edit Order screen, show any subscriptions with items switched by this order
+		} else {
+			$switched_subscriptions = wcs_get_subscriptions_for_switch_order( $post->ID );
+		}
+
+		if ( is_array( $switched_subscriptions ) ) {
+			foreach ( $switched_subscriptions as $subscription_id => $subscription ) {
+				wcs_set_objects_property( $subscription, 'relationship', __( 'Switched Subscription', 'woocommerce-subscriptions' ), 'set_prop_only' );
+				$orders[ $subscription_id ] = $subscription;
+			}
+		}
+
+		foreach ( $orders as $order ) {
+			include( plugin_dir_path( WC_Subscriptions::$plugin_file ) . 'includes/admin/meta-boxes/views/html-related-orders-row.php' );
+		}
+
 	}
 }

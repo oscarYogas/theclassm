@@ -32,8 +32,7 @@ $query = new WP_Query( $args );?>
           <?php echo do_shortcode('[facetwp facet="tipo"]'); ?>
           <?php //echo do_shortcode('[facetwp facet="duracion"]'); ?>
           <div>
-              <div>Duración</div>
-              <?php echo do_shortcode('[facetwp facet="duracion_exacta"]'); ?>
+              <?php echo do_shortcode('[facetwp facet="duracion_programa"]'); ?>
           </div>
           <?php echo do_shortcode('[facetwp facet="nivel"]'); ?>
           <?php echo do_shortcode('[facetwp facet="intensidad"]'); ?>
@@ -81,9 +80,6 @@ $query = new WP_Query( $args );?>
       </ul>
 
       <?php echo do_shortcode('[facetwp facet="paginador_programa"]'); ?>
-
-
-
       </div>
     </main>
 

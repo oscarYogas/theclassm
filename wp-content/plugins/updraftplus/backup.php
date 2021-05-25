@@ -123,9 +123,11 @@ class UpdraftPlus_Backup {
 
 		$this->altered_since = $altered_since;
 
+		$resumptions_since_last_successful = $updraftplus->current_resumption - $updraftplus->last_successful_resumption;
+		
 		// false means 'tried + failed'; whereas 0 means 'not yet tried'
 		// Disallow binzip on OpenVZ when we're not sure there's plenty of memory
-		if (0 === $this->binzip && (!defined('UPDRAFTPLUS_PREFERPCLZIP') || UPDRAFTPLUS_PREFERPCLZIP != true) && (!defined('UPDRAFTPLUS_NO_BINZIP') || !UPDRAFTPLUS_NO_BINZIP) && $updraftplus->current_resumption <9) {
+		if (0 === $this->binzip && (!defined('UPDRAFTPLUS_PREFERPCLZIP') || !UPDRAFTPLUS_PREFERPCLZIP) && (!defined('UPDRAFTPLUS_NO_BINZIP') || !UPDRAFTPLUS_NO_BINZIP) && ($updraftplus->current_resumption < 9 || $resumptions_since_last_successful < 2)) {
 
 			if (@file_exists('/proc/user_beancounters') && @file_exists('/proc/meminfo') && @is_readable('/proc/meminfo')) {// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 				$meminfo = @file_get_contents('/proc/meminfo', false, null, 0, 200);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
@@ -198,7 +200,9 @@ class UpdraftPlus_Backup {
 	 */
 	public function create_zip($create_from_dir, $whichone, $backup_file_basename, $index, $first_linked_index = false) {
 		// Note: $create_from_dir can be an array or a string
-		@set_time_limit(UPDRAFTPLUS_SET_TIME_LIMIT);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+		
+		if (function_exists('set_time_limit')) set_time_limit(UPDRAFTPLUS_SET_TIME_LIMIT);
+		
 		$original_index = $index;
 
 		$this->index = $index;
@@ -271,9 +275,9 @@ class UpdraftPlus_Backup {
 		$match = '_'.$updraftplus->file_nonce."-".$whichone;
 		while (false !== ($e = $d->read())) {
 			if ('.' == $e || '..' == $e || !is_file($this->updraft_dir.'/'.$e)) continue;
-			$ziparchive_match = preg_match("/$match([0-9]+)?\.zip\.tmp\.([A-Za-z0-9]){6}?$/i", $e);
+			$ziparchive_match = preg_match("/$match(?:[0-9]*)\.zip\.tmp\.[A-Za-z0-9]+$/i", $e);
 			$binzip_match = preg_match("/^zi([A-Za-z0-9]){6}$/", $e);
-			$pclzip_match = preg_match("/^pclzip-[a-z0-9]+.tmp$/", $e);
+			$pclzip_match = preg_match("/^pclzip-[a-z0-9]+.(?:gz|tmp)$/", $e);
 			if ($time_now-filemtime($this->updraft_dir.'/'.$e) < 30 && ($ziparchive_match || (0 != $updraftplus->current_resumption && ($binzip_match || $pclzip_match)))) {
 				UpdraftPlus_Job_Scheduler::terminate_due_to_activity($this->updraft_dir.'/'.$e, $time_now, filemtime($this->updraft_dir.'/'.$e));
 			}
@@ -441,7 +445,7 @@ class UpdraftPlus_Backup {
 				$this->last_storage_instance = ($ind+1 >= count($services) && $instance_id_count+1 >= $total_instance_ids && $errors_before_uploads == $updraftplus->error_count()) ? true : false;
 				$log_extra = $this->last_storage_instance ? ' (last)' : '';
 				$updraftplus->log("Cloud backup selection (".($ind+1)."/".count($services)."): ".$service." with instance (".($instance_id_count+1)."/".$total_instance_ids.")".$log_extra);
-				@set_time_limit(UPDRAFTPLUS_SET_TIME_LIMIT);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+				if (function_exists('set_time_limit')) @set_time_limit(UPDRAFTPLUS_SET_TIME_LIMIT);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 	
 				if ('none' == $service || '' == $service) {
 					$updraftplus->log('No remote despatch: user chose no remote backup service');
@@ -1046,17 +1050,17 @@ class UpdraftPlus_Backup {
 	}
 	
 	/**
-	 * Prune files from local or remote storage
+	 * Prune files from remote and local storage
 	 *
-	 * @param String $service         Service to prune
-	 * @param Array  $dofiles         An array of files (or a single string for one file)
-	 * @param Array  $method_object   specific method object
-	 * @param Array  $object_passback specific passback object
-	 * @param Array  $file_sizes      size of files
+	 * @param String	   $service         Service to prune (one only)
+	 * @param Array|String $dofiles         An array of files (or a single string for one file)
+	 * @param Array		   $method_object   specific method object
+	 * @param Array		   $object_passback specific passback object
+	 * @param Array		   $file_sizes      size of files
 	 */
 	private function prune_file($service, $dofiles, $method_object = null, $object_passback = null, $file_sizes = array()) {
 		global $updraftplus;
-		if (!is_array($dofiles)) $dofiles =array($dofiles);
+		if (!is_array($dofiles)) $dofiles = array($dofiles);
 		
 		if (!apply_filters('updraftplus_prune_file', true, $dofiles, $service, $method_object, $object_passback, $file_sizes)) {
 			$updraftplus->log("Prune: service=$service: skipped via filter");
@@ -1069,7 +1073,7 @@ class UpdraftPlus_Backup {
 			// delete it if it's locally available
 			if (file_exists($fullpath)) {
 				$updraftplus->log("Deleting local copy ($dofile)");
-				@unlink($fullpath);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+				unlink($fullpath);
 			}
 		}
 		// Despatch to the particular method's deletion routine
@@ -1569,6 +1573,12 @@ class UpdraftPlus_Backup {
 		$found_options_table = false;
 		$is_multisite = is_multisite();
 
+		$anonymisation_options = $updraftplus->jobdata_get('anonymisation_options', array());
+
+		if (!empty($anonymisation_options)) {
+			$updraftplus->log("Anonymisation options have been set, so mysqldump (which does not support them) will be disabled.");
+		}
+
 		// Gather the list of files that look like partial table files once only
 		$potential_stitch_files = array();
 		$table_file_prefix_base= $file_base.'-db'.$this->whichdb_suffix.'-table-';
@@ -1599,7 +1609,7 @@ class UpdraftPlus_Backup {
 			$total_tables++;
 
 			// Increase script execution time-limit to 15 min for every table.
-			@set_time_limit(UPDRAFTPLUS_SET_TIME_LIMIT);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+			if (function_exists('set_time_limit')) @set_time_limit(UPDRAFTPLUS_SET_TIME_LIMIT);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 			// The table file may already exist if we have produced it on a previous run
 			$table_file_prefix = $file_base.'-db'.$this->whichdb_suffix.'-table-'.$table.'.table';
 
@@ -1675,7 +1685,7 @@ class UpdraftPlus_Backup {
 				// New Jul 2014: This attempt to use bindump instead at a lower threshold is quite conservative - only if the last successful run was exactly two resumptions ago - may be useful to expand
 				$bindump_threshold = (!$updraftplus->something_useful_happened && !empty($updraftplus->current_resumption) && (2 == $updraftplus->current_resumption - $updraftplus->last_successful_resumption)) ? 1000 : 8000;
 
-				$bindump = (isset($table_status->Rows) && ($table_status->Rows>$bindump_threshold || (defined('UPDRAFTPLUS_ALWAYS_TRY_MYSQLDUMP') && UPDRAFTPLUS_ALWAYS_TRY_MYSQLDUMP)) && is_string($binsqldump)) ? $this->backup_table_bindump($binsqldump, $table) : false;
+				$bindump = (isset($table_status->Rows) && ($table_status->Rows>$bindump_threshold || (defined('UPDRAFTPLUS_ALWAYS_TRY_MYSQLDUMP') && UPDRAFTPLUS_ALWAYS_TRY_MYSQLDUMP)) && is_string($binsqldump) && empty($anonymisation_options)) ? $this->backup_table_bindump($binsqldump, $table) : false;
 				
 				// Means "start of table". N.B. The meaning of an integer depends upon whether the table has a usable primary key or not.
 				$start_record = true;
@@ -1983,7 +1993,7 @@ class UpdraftPlus_Backup {
 		// $dump_as_table = ($this->duplicate_tables_exist == false && stripos($table, $this->table_prefix) === 0 && strpos($table, $this->table_prefix) !== 0) ? $this->table_prefix.substr($table, strlen($this->table_prefix)) : $table;
 
 		$pfile = md5(time().rand()).'.tmp';
-		file_put_contents($this->updraft_dir.'/'.$pfile, "[mysqldump]\npassword=".$this->dbinfo['pass']."\n");
+		file_put_contents($this->updraft_dir.'/'.$pfile, "[mysqldump]\npassword=\"".addslashes($this->dbinfo['pass'])."\"\n");
 
 		$where_array = apply_filters('updraftplus_backup_table_sql_where', array(), $table_name, $this);
 		$where = '';
@@ -2015,7 +2025,7 @@ class UpdraftPlus_Backup {
 		$ret = false;
 		$any_output = false;
 		$writes = 0;
-		$handle = popen($exec, "r");
+		$handle = function_exists('popen') ? popen($exec, "r") : false;
 		if ($handle) {
 			while (!feof($handle)) {
 				$w = fgets($handle);
@@ -2174,6 +2184,45 @@ class UpdraftPlus_Backup {
 	}
 	
 	/**
+	 * Return a list of primary keys (N.B. the method should not be called unless the caller already knows that the table has a single/simple primary key) for rows that have "over-sized" data.
+	 * Currently this only examines the "posts" table, which is the primary cause of problems. If others are revealed in future, it can be generalised (e.g. examine the whole definition/all cells).
+	 *
+	 * @param String $table - table name
+	 *
+	 * @return Array - list of IDs
+	 */
+	private function get_oversized_rows($table) {
+	
+		if ($this->table_prefix_raw.'posts' != $table) return array();
+	
+		global $updraftplus;
+	
+		// Look for the jobdata_delete() call elsewhere in this class - the key name needs to match
+		$jobdata_key = 'oversized_rows_'.$table;
+		
+		$oversized_list = $updraftplus->jobdata_get($jobdata_key);
+		
+		if (is_array($oversized_list)) return $oversized_list;
+	
+		$oversized_list = array();
+		
+		// Allow over-ride via a constant
+		$oversized_row_size = defined('UPDRAFTPLUS_OVERSIZED_ROW_SIZE') ? UPDRAFTPLUS_OVERSIZED_ROW_SIZE : 2048576;
+		
+		$sql = $this->wpdb_obj->prepare("SELECT id FROM ".UpdraftPlus_Manipulation_Functions::backquote($table)." WHERE LENGTH(post_content) > %d ORDER BY id ASC", $oversized_row_size);
+		
+		$oversized_rows = $this->wpdb_obj->get_col($sql);
+		
+		// Upon an error, just return an empty list
+		if (!is_array($oversized_rows)) return array();
+		
+		$updraftplus->jobdata_set($jobdata_key, $oversized_rows);
+		
+		return $oversized_rows;
+	
+	}
+	
+	/**
 	 * Original version taken partially from phpMyAdmin and partially from Alain Wolf, Zurich - Switzerland to use the WordPress $wpdb object
 	 * Website: http://restkultur.ch/personal/wolf/scripts/db_backup/
 	 * Modified by Scott Merrill (http://www.skippy.net/)
@@ -2249,7 +2298,7 @@ class UpdraftPlus_Backup {
 				if ((0 === strpos($struct->Type, 'tinyint')) || (0 === strpos(strtolower($struct->Type), 'smallint'))
 					|| (0 === strpos(strtolower($struct->Type), 'mediumint')) || (0 === strpos(strtolower($struct->Type), 'int')) || (0 === strpos(strtolower($struct->Type), 'bigint'))
 				) {
-						$defs[strtolower($struct->Field)] = (null === $struct->Default ) ? 'NULL' : $struct->Default;
+						$defs[strtolower($struct->Field)] = (null === $struct->Default) ? 'NULL' : $struct->Default;
 						$integer_fields[strtolower($struct->Field)] = true;
 				}
 				
@@ -2272,6 +2321,8 @@ class UpdraftPlus_Backup {
 			$use_primary_key = false;
 			if ($can_use_primary_key && is_string($primary_key) && preg_match('#^(small|medium|big)?int\(#i', $primary_key_type)) {
 				$use_primary_key = true;
+				$oversized_rows = $this->get_oversized_rows($table);
+
 				if (preg_match('# unsigned$#i', $primary_key_type)) {
 					if (true === $start_record) $start_record = -1;
 				} else {
@@ -2306,7 +2357,7 @@ class UpdraftPlus_Backup {
 			// Loop which retrieves data
 			do {
 
-				@set_time_limit(UPDRAFTPLUS_SET_TIME_LIMIT);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+				if (function_exists('set_time_limit')) @set_time_limit(UPDRAFTPLUS_SET_TIME_LIMIT);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 
 				// Reset back to that which has constructed before the loop began
 				$final_where = $where;
@@ -2318,6 +2369,24 @@ class UpdraftPlus_Backup {
 				
 					// If it's -1, then we avoid mentioning a negative value, as the value may be unsigned
 					$final_where .= UpdraftPlus_Manipulation_Functions::backquote($primary_key).((-1 === $start_record) ? ' >= 0' : " > $start_record");
+				
+					$oversized_last = false;
+					// Remove ones we've gone past
+					foreach ($oversized_rows as $k => $row_id) {
+						if ($start_record >= $row_id) {
+							unset($oversized_rows[$k]);
+						} else {
+							$oversized_last = $row_id;
+							// At this point we are only willing to fetch a single over-sized row. If this ever changes, we'll need to also keep track of their length.
+							break;
+						}
+					}
+					// Number the keys again from zero
+					$oversized_rows = array_values($oversized_rows);
+				
+					if ($oversized_last) {
+						$final_where .= " AND ". UpdraftPlus_Manipulation_Functions::backquote($primary_key)." <= $oversized_last";
+					}
 				
 					$limit_statement = sprintf('LIMIT %d', $fetch_rows);
 					
@@ -2333,9 +2402,26 @@ class UpdraftPlus_Backup {
 				
 				$select_sql = "SELECT $select FROM ".UpdraftPlus_Manipulation_Functions::backquote($table)." $final_where $order_by $limit_statement";
 
-				$table_data = $this->wpdb_obj->get_results($select_sql, ARRAY_A);
+				// Allow the data to be filtered (e.g. anonymisation)
+				$table_data = apply_filters('updraftplus_backup_table_results', $this->wpdb_obj->get_results($select_sql, ARRAY_A), $table, $this->table_prefix, $this->whichdb);
 				
-				if (!$table_data) continue;
+				if (null === $table_data) {
+					$updraftplus->log("Database fetch error (null returned) when running: $select_sql");
+				}
+				
+				$oversized_changes = false;
+				
+				if (!$table_data) {
+					// Nothing was found - not even the expected over-sized row; this means it was deleted - so don't try to use a limitation based on it again, or we may get an infinite loop.
+					if (isset($oversized_last) && false !== $oversized_last) {
+						if (false !== ($key = array_search($oversized_last, $oversized_rows))) {
+							unset($oversized_rows[$key]);
+							$oversized_changes = true;
+						}
+					}
+					if ($oversized_changes) $updraftplus->jobdata_set('oversized_rows_'.$table, $oversized_rows);
+					continue;
+				}
 				$entries = 'INSERT INTO '.UpdraftPlus_Manipulation_Functions::backquote($dump_as_table).' VALUES ';
 
 				// \x08\\x09, not required
@@ -2343,25 +2429,38 @@ class UpdraftPlus_Backup {
 				$thisentry = '';
 				foreach ($table_data as $row) {
 					$total_rows++;
-					$values = array();
+					if ($thisentry) $thisentry .= ",\n ";
+					$thisentry .= '(';
+					$key_count = 0;
 					foreach ($row as $key => $value) {
+					
+						if ($key_count) $thisentry .= ', ';
+						$key_count++;
 					
 						if ($use_primary_key && strtolower($primary_key) == strtolower($key) && $value > $start_record) {
 							$start_record = $value;
+							foreach ($oversized_rows as $k => $row_id) {
+								if ($start_record >= $row_id) {
+									unset($oversized_rows[$k]);
+								} else {
+									break;
+								}
+							}
 						}
 					
 						if (isset($integer_fields[strtolower($key)])) {
 							// make sure there are no blank spots in the insert syntax,
 							// yet try to avoid quotation marks around integers
 							$value = (null === $value || '' === $value) ? $defs[strtolower($key)] : $value;
-							$values[] = ('' === $value) ? "''" : $value;
+							$value = ('' === $value) ? "''" : $value;
+							$thisentry .= $value;
 						} elseif (isset($binary_fields[strtolower($key)])) {
 							if (null === $value) {
-								$values[] = 'NULL';
+								$thisentry .= 'NULL';
 							} elseif ('' === $value) {
-								$values[] = "''";
+								$thisentry .= "''";
 							} else {
-								$values[] = "0x" . bin2hex(str_repeat("0", floor(strspn($value, "0") / 4)).$value);
+								$thisentry .= "0x" . bin2hex(str_repeat("0", floor(strspn($value, "0") / 4)).$value);
 							}
 						} elseif (isset($bit_fields[$key])) {
 							mbstring_binary_safe_encoding();
@@ -2371,17 +2470,23 @@ class UpdraftPlus_Backup {
 							for ($i=0; $i<$val_len; $i++) {
 								$hex .= sprintf('%02X', ord($value[$i]));
 							}
-							$values[] = "b'".str_pad($this->hex2bin($hex), $bit_fields[$key], '0', STR_PAD_LEFT)."'";
+							$thisentry .= "b'".str_pad($this->hex2bin($hex), $bit_fields[$key], '0', STR_PAD_LEFT)."'";
 						} else {
-							$values[] = (null === $value) ? 'NULL' : "'" . str_replace($search, $replace, str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value))) . "'";
+							$thisentry .= (null === $value) ? 'NULL' : "'" . str_replace($search, $replace, str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value))) . "'";
 						}
 					}
+					$thisentry .= ')';
 					
-					if ($thisentry) $thisentry .= ",\n ";
-					$thisentry .= '('.implode(', ', $values).')';
 					// Flush every 512KB
 					if (strlen($thisentry) > 524288) {
-						$this->stow(" \n".$entries.$thisentry.';');
+						$thisentry .= ';';
+						if (strlen($thisentry) > 10485760) {
+							// This is an attempt to prevent avoidable duplication of long strings in-memory, at the cost of one extra write
+							$this->stow(" \n".$entries);
+							$this->stow($thisentry);
+						} else {
+							$this->stow(" \n".$entries.$thisentry);
+						}
 						$thisentry = '';
 						// Potentially indicate that enough has been done to loop
 						if ($this->db_current_raw_bytes > $enough_data_after || time() - $began_writing_at > $enough_time_after) {
@@ -2390,7 +2495,16 @@ class UpdraftPlus_Backup {
 					}
 					
 				}
-				if ($thisentry) $this->stow(" \n".$entries.$thisentry.';');
+				if ($thisentry) {
+					$thisentry .= ';';
+					if (strlen($thisentry) > 10485760) {
+						// This is an attempt to prevent avoidable duplication of long strings in-memory, at the cost of one extra write
+						$this->stow(" \n".$entries);
+						$this->stow($thisentry);
+					} else {
+						$this->stow(" \n".$entries.$thisentry);
+					}
+				}
 				
 				if (!$use_primary_key) {
 					$start_record += $fetch_rows;
@@ -2398,7 +2512,8 @@ class UpdraftPlus_Backup {
 				
 				if ($process_pages > 0) $process_pages--;
 				
-			} while (!$enough_for_now && count($table_data) > 0 && (-1 == $process_pages || $process_pages > 0));
+			// The condition involving count($oversized_rows) is for when rows that were in oversized_rows got deleted before being fetched; the "ID < (row)" condition could result in no data being returned, even though the table isn't finished
+			} while (!$enough_for_now && (count($table_data) > 0 || (isset($oversized_rows) && count($oversized_rows) > 0)) && (-1 == $process_pages || $process_pages > 0));
 		}
 		
 		$updraftplus->log("Table $table: Rows added in this batch (next record: $start_record): $total_rows (uncompressed bytes in this segment=".$this->db_current_raw_bytes.") in ".sprintf("%.02f", max(microtime(true)-$microtime, 0.00001))." seconds");
@@ -2406,6 +2521,8 @@ class UpdraftPlus_Backup {
 		// If all data has been fetched, then write out the closing comment
 		if (-1 == $process_pages || 0 == count($table_data)) {
 			$this->stow("\n# End of data contents of table ".UpdraftPlus_Manipulation_Functions::backquote($table)."\n\n");
+			// Keep the keyname here in sync with what is in self::get_oversized_rows()
+			$updraftplus->jobdata_delete('oversized_rows_'.$table);
 			return is_numeric($start_record) ? array('next_record' => (int) $start_record) : array();
 		}
 
@@ -2612,7 +2729,7 @@ class UpdraftPlus_Backup {
 	 * @param Array   $exclude               passed by reference so that we can remove elements as they are matched - saves time checking against already-dealt-with objects]
 	 * @return Boolean
 	 */
-	private function makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels = 1, &$exclude) {
+	private function makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels, &$exclude) {
 
 // $zipfile = $this->zip_basename.(($this->index == 0) ? '' : ($this->index+1)).'.zip.tmp';
 
@@ -2696,26 +2813,24 @@ class UpdraftPlus_Backup {
 				if (is_link($fullpath.'/'.$e)) {
 					$deref = realpath($fullpath.'/'.$e);
 					if (is_file($deref)) {
-						if (is_readable($deref)) {
-							$use_stripped = $stripped_storage_path.'/'.$e;
-							if (false !== ($fkey = array_search($use_stripped, $exclude))) {
-								$updraftplus->log("Entity excluded by configuration option: $use_stripped");
-								unset($exclude[$fkey]);
-							} elseif (!empty($this->excluded_extensions) && $this->is_entity_excluded_by_extension($e)) {
-								$updraftplus->log("Entity excluded by configuration option (extension): $use_stripped");
-							} elseif (!empty($this->excluded_prefixes) && $this->is_entity_excluded_by_prefix($e)) {
-								$updraftplus->log("Entity excluded by configuration option (prefix): $use_stripped");
-							} elseif (apply_filters('updraftplus_exclude_file', false, $deref, $use_stripped)) {
-								$updraftplus->log("Entity excluded by filter: $use_stripped");
+						$use_stripped = $stripped_storage_path.'/'.$e;
+						if (false !== ($fkey = array_search($use_stripped, $exclude))) {
+							$updraftplus->log("Entity excluded by configuration option: $use_stripped");
+							unset($exclude[$fkey]);
+						} elseif (!empty($this->excluded_extensions) && $this->is_entity_excluded_by_extension($e)) {
+							$updraftplus->log("Entity excluded by configuration option (extension): $use_stripped");
+						} elseif (!empty($this->excluded_prefixes) && $this->is_entity_excluded_by_prefix($e)) {
+							$updraftplus->log("Entity excluded by configuration option (prefix): $use_stripped");
+						} elseif (apply_filters('updraftplus_exclude_file', false, $deref, $use_stripped)) {
+							$updraftplus->log("Entity excluded by filter: $use_stripped");
+						} elseif (is_readable($deref)) {
+							$mtime = filemtime($deref);
+							if ($mtime > 0 && $mtime > $if_altered_since) {
+								$this->zipfiles_batched[$deref] = $use_path_when_storing.'/'.$e;
+								$this->makezip_recursive_batchedbytes += @filesize($deref);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+								// @touch($zipfile);
 							} else {
-								$mtime = filemtime($deref);
-								if ($mtime > 0 && $mtime > $if_altered_since) {
-									$this->zipfiles_batched[$deref] = $use_path_when_storing.'/'.$e;
-									$this->makezip_recursive_batchedbytes += @filesize($deref);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
-									// @touch($zipfile);
-								} else {
-									$this->zipfiles_skipped_notaltered[$deref] = $use_path_when_storing.'/'.$e;
-								}
+								$this->zipfiles_skipped_notaltered[$deref] = $use_path_when_storing.'/'.$e;
 							}
 						} else {
 							$updraftplus->log("$deref: unreadable file");
@@ -2729,25 +2844,23 @@ class UpdraftPlus_Backup {
 						$this->makezip_recursive_add($deref, $use_path_when_storing.'/'.$e, $original_fullpath, $startlevels, $exclude);
 					}
 				} elseif (is_file($fullpath.'/'.$e)) {
-					if (is_readable($fullpath.'/'.$e)) {
-						$use_stripped = $stripped_storage_path.'/'.$e;
-						if (false !== ($fkey = array_search($use_stripped, $exclude))) {
-							$updraftplus->log("Entity excluded by configuration option: $use_stripped");
-							unset($exclude[$fkey]);
-						} elseif (!empty($this->excluded_extensions) && $this->is_entity_excluded_by_extension($e)) {
-							$updraftplus->log("Entity excluded by configuration option (extension): $use_stripped");
-						} elseif (!empty($this->excluded_prefixes) && $this->is_entity_excluded_by_prefix($e)) {
-							$updraftplus->log("Entity excluded by configuration option (prefix): $use_stripped");
-						} elseif (apply_filters('updraftplus_exclude_file', false, $fullpath.'/'.$e)) {
-							$updraftplus->log("Entity excluded by filter: $use_stripped");
+					$use_stripped = $stripped_storage_path.'/'.$e;
+					if (false !== ($fkey = array_search($use_stripped, $exclude))) {
+						$updraftplus->log("Entity excluded by configuration option: $use_stripped");
+						unset($exclude[$fkey]);
+					} elseif (!empty($this->excluded_extensions) && $this->is_entity_excluded_by_extension($e)) {
+						$updraftplus->log("Entity excluded by configuration option (extension): $use_stripped");
+					} elseif (!empty($this->excluded_prefixes) && $this->is_entity_excluded_by_prefix($e)) {
+						$updraftplus->log("Entity excluded by configuration option (prefix): $use_stripped");
+					} elseif (apply_filters('updraftplus_exclude_file', false, $fullpath.'/'.$e)) {
+						$updraftplus->log("Entity excluded by filter: $use_stripped");
+					} elseif (is_readable($fullpath.'/'.$e)) {
+						$mtime = filemtime($fullpath.'/'.$e);
+						if ($mtime > 0 && $mtime > $if_altered_since) {
+							$this->zipfiles_batched[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
+							$this->makezip_recursive_batchedbytes += @filesize($fullpath.'/'.$e);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 						} else {
-							$mtime = filemtime($fullpath.'/'.$e);
-							if ($mtime > 0 && $mtime > $if_altered_since) {
-								$this->zipfiles_batched[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
-								$this->makezip_recursive_batchedbytes += @filesize($fullpath.'/'.$e);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
-							} else {
-								$this->zipfiles_skipped_notaltered[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
-							}
+							$this->zipfiles_skipped_notaltered[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
 						}
 					} else {
 						$updraftplus->log("$fullpath/$e: unreadable file");
@@ -2840,8 +2953,6 @@ class UpdraftPlus_Backup {
 		gzclose($whandle);
 		return unserialize($var);
 	}
-
-
 
 	/**
 	 * Make Zip File.
@@ -3227,8 +3338,14 @@ class UpdraftPlus_Backup {
 
 	}
 
+	/**
+	 * This function is an ugly, conservative workaround for https://bugs.php.net/bug.php?id=62119. It does not aim to always work-around, but to ensure that nothing is made worse.
+	 *
+	 * @param String $element
+	 *
+	 * @return String
+	 */
 	private function basename($element) {
-		// This function is an ugly, conservative workaround for https://bugs.php.net/bug.php?id=62119. It does not aim to always work-around, but to ensure that nothing is made worse.
 		$dirname = dirname($element);
 		$basename_manual = preg_replace('#^[\\/]+#', '', substr($element, strlen($dirname)));
 		$basename = basename($element);
@@ -3459,11 +3576,31 @@ class UpdraftPlus_Backup {
 
 			$fsize = filesize($file);
 
-			if (@constant('UPDRAFTPLUS_SKIP_FILE_OVER_SIZE') && $fsize > UPDRAFTPLUS_SKIP_FILE_OVER_SIZE) {// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+			$large_file_warning_key = 'vlargefile_'.md5($this->whichone.'#'.$add_as);
+			
+			if (defined('UPDRAFTPLUS_SKIP_FILE_OVER_SIZE') && UPDRAFTPLUS_SKIP_FILE_OVER_SIZE && $fsize > UPDRAFTPLUS_SKIP_FILE_OVER_SIZE) {// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 				$updraftplus->log("File is larger than the user-configured (UPDRAFTPLUS_SKIP_FILE_OVER_SIZE) maximum (is: ".round($fsize/1024, 1)." KB); will skip: ".$add_as);
 				continue;
 			} elseif ($fsize > UPDRAFTPLUS_WARN_FILE_SIZE) {
-				$updraftplus->log(sprintf(__('A very large file was encountered: %s (size: %s Mb)', 'updraftplus'), $add_as, round($fsize/1048576, 1)), 'warning', 'vlargefile_'.md5($this->whichone.'#'.$add_as));
+			
+				$log_msg = __('A very large file was encountered: %s (size: %s Mb)', 'updraftplus');
+			
+				// Was this warned about on a previous run?
+				if ($updraftplus->warning_exists($large_file_warning_key)) {
+					$updraftplus->log_remove_warning($large_file_warning_key);
+					$large_file_warning_key .= '-2';
+					$log_msg .= ' - '.__('a second attempt is being made (upon further failure it will be skipped)', 'updraftplus');
+				} elseif ($updraftplus->warning_exists($large_file_warning_key.'-2') || $updraftplus->warning_exists($large_file_warning_key.'-final')) {
+					$updraftplus->log_remove_warning($large_file_warning_key.'-2');
+					$large_file_warning_key .= '-final';
+					$log_msg .= ' - '.__('two unsuccessful attempts were made to include it, and it will now be omitted from the backup', 'updraftplus');
+				}
+			
+				$updraftplus->log(sprintf($log_msg, $add_as, round($fsize/1048576, 1)), 'warning', $large_file_warning_key);
+				
+				if ('-final' == substr($large_file_warning_key, -6, 6)) {
+					continue;
+				}
 			}
 
 			// Skips files that are already added
@@ -3482,7 +3619,6 @@ class UpdraftPlus_Backup {
 				// N.B., Since makezip_addfiles() can get called more than once if there were errors detected, potentially $zipfiles_added_thisrun can exceed the total number of batched files (if they get processed twice).
 				$this->zipfiles_added_thisrun++;
 				$files_zipadded_since_open[] = array('file' => $file, 'addas' => $add_as);
-				$updraftplus->log_remove_warning('vlargefile_'.md5($this->whichone.'#'.$add_as));
 
 				$data_added_since_reopen += $fsize;
 				// $data_added_this_resumption += $fsize;
@@ -3528,7 +3664,7 @@ class UpdraftPlus_Backup {
 						}
 					}
 
-					@set_time_limit(UPDRAFTPLUS_SET_TIME_LIMIT);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+					if (function_exists('set_time_limit')) @set_time_limit(UPDRAFTPLUS_SET_TIME_LIMIT);// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 					$something_useful_sizetest = false;
 
 					if ($data_added_since_reopen > $maxzipbatch) {

@@ -329,7 +329,7 @@ class WC_Subscription extends WC_Order {
 					$can_be_updated = true;
 				} elseif ( $this->has_status( 'pending' ) ) {
 					$can_be_updated = true;
-				} elseif ( $this->has_status( 'pending-cancel' ) && ( $this->is_manual() || ( false === $this->payment_method_supports( 'gateway_scheduled_payments' ) && $this->payment_method_supports( 'subscription_date_changes' ) && $this->payment_method_supports( 'subscription_reactivation' ) ) ) ) {
+				} elseif ( $this->has_status( 'pending-cancel' ) && $this->get_time( 'end' ) > gmdate( 'U' ) && ( $this->is_manual() || ( false === $this->payment_method_supports( 'gateway_scheduled_payments' ) && $this->payment_method_supports( 'subscription_date_changes' ) && $this->payment_method_supports( 'subscription_reactivation' ) ) ) ) {
 					$can_be_updated = true;
 				} else {
 					$can_be_updated = false;
@@ -350,9 +350,17 @@ class WC_Subscription extends WC_Order {
 					$can_be_updated = false;
 				}
 				break;
-			case 'pending-cancel':
-				if ( $this->payment_method_supports( 'subscription_cancellation' ) && ( $this->has_status( 'active' ) || $this->has_status( 'on-hold' ) && ! $this->needs_payment() ) ) {
-					$can_be_updated = true;
+			case 'pending-cancel' :
+				// Only active subscriptions can be given the "pending cancellation" status, becuase it is used to account for a prepaid term
+				if ( $this->payment_method_supports( 'subscription_cancellation' ) ) {
+					if ( $this->has_status( 'active' ) ) {
+						$can_be_updated = true;
+					} elseif ( ! $this->needs_payment() && $this->has_status( array( 'cancelled', 'on-hold' ) ) ) {
+						// Payment completed and subscription is cancelled
+						$can_be_updated = true;
+					} else {
+						$can_be_updated = false;
+					}
 				} else {
 					$can_be_updated = false;
 				}
@@ -1460,7 +1468,7 @@ class WC_Subscription extends WC_Order {
 			// The next payment date is {interval} billing periods from the start date, trial end date or last payment date
 			if ( 0 !== $next_payment_time && $next_payment_time < gmdate( 'U' ) && ( ( 0 !== $trial_end_time && 1 >= $this->get_payment_count() ) || WC_Subscriptions_Synchroniser::subscription_contains_synced_product( $this ) ) ) {
 				$from_timestamp = $next_payment_time;
-			} elseif ( $last_payment_time > $start_time && apply_filters( 'wcs_calculate_next_payment_from_last_payment', true, $this ) ) {
+			} elseif ( $last_payment_time >= $start_time && apply_filters( 'wcs_calculate_next_payment_from_last_payment', true, $this ) ) {
 				$from_timestamp = $last_payment_time;
 			} elseif ( $next_payment_time > $start_time ) { // Use the currently scheduled next payment to preserve synchronisation
 				$from_timestamp = $next_payment_time;
@@ -2028,7 +2036,9 @@ class WC_Subscription extends WC_Order {
 	/**
 	 * Save new payment method for a subscription
 	 *
-	 * @since 2.0
+	 * @since 2.0.0
+	 *
+	 * @throws InvalidArgumentException An exception is thrown via @see WC_Subscription::set_payment_method_meta() if the payment meta passed is invalid.
 	 * @param WC_Payment_Gateway|string $payment_method
 	 * @param array $payment_meta Associated array of the form: $database_table => array( value, )
 	 */
@@ -2081,8 +2091,12 @@ class WC_Subscription extends WC_Order {
 	/**
 	 * Save payment method meta data for the Subscription
 	 *
-	 * @since 2.0
-	 * @param array $payment_meta Associated array of the form: $database_table => array( value, )
+	 * @since 2.0.0
+	 *
+	 * @throws InvalidArgumentException An exception if the payment meta variable isn't an array.
+	 *
+	 * @param string $payment_method_id The payment method's ID.
+	 * @param array  $payment_meta      Associated array of the form: $database_table => array( value, )
 	 */
 	protected function set_payment_method_meta( $payment_method_id, $payment_meta ) {
 

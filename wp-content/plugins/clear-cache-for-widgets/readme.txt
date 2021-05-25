@@ -3,8 +3,8 @@ Contributors: webheadllc
 Donate link: https://webheadcoder.com/donate-clear-cache-for-me
 Tags: wpengine, cache, clear, purge, js, css, widget
 Requires at least: 3.8
-Tested up to: 5.5
-Stable tag: 1.5
+Tested up to: 5.7
+Stable tag: 1.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,7 +46,10 @@ Clears all cache for following actions (requires a caching system above to be ac
 * When Qode options are saved this plugin forces browsers to reload the custom css and custom js.
 * When a WP Forms forms or settings are saved.
 * When WooCommerce settings are saved. (Cache should already be clearing when products are saved.)
+* When settings from the Insert Headers and Footers plugin by WPBeginner are saved.  
 * When Settings from a settings page is saved.  This includes settings from WordPress core, Yoast SEO, and most other plugins using the Settings API.
+* When WordPress is updated.
+* When plugins are updated, activated, and deactivated.
 
 [See the plugin's homepage for more details](https://webheadcoder.com/clear-cache-for-me/).
 
@@ -55,6 +58,15 @@ Clears all cache for following actions (requires a caching system above to be ac
 1. The button on the dashboard.  
 
 == Changelog ==
+
+= 1.6 =
+Added cache clearing when WordPress core is updated.
+Added cache clearing when plugins are activated, deactivated, and updated.  
+Added cache clearing support for Insert Headers and Footers plugin.  
+Fixed admin-bar loading when admin bar is not present.    
+
+= 1.5.1 =
+Remove ajax from admin bar when jQuery is not available.  
 
 = 1.5 =
 Updated admin bar link to clear cache in place.  

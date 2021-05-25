@@ -174,7 +174,7 @@ function ccfm_options_do_page() {
             <h3>Development Mode</h3>
 
             <table class="form-table">
-                <tr valign="top"><th scope="row"><?php _e( 'Load CSS and JS files on each page load.', 'ccfm' ); ?> <?php echo sprintf( __( '<a href="%s" target="_blank"><span class="dashicons dashicons-editor-help"></span></a>', 'ccfm' ), 'https://webheadcoder.com/clear-cache-for-me/#dev-mode' ); ?></th>
+                <tr valign="top"><th scope="row"><?php _e( 'Force browser to fetch a fresh copy of CSS and JS files on each page load.', 'ccfm' ); ?> <?php echo sprintf( __( '<a href="%s" target="_blank"><span class="dashicons dashicons-editor-help"></span></a>', 'ccfm' ), 'https://webheadcoder.com/clear-cache-for-me/#dev-mode' ); ?></th>
                     <td>
                         <input type="checkbox" name="ccfm_options[dev_mode_assets]" value="1" <?php checked( 1, isset( $options['dev_mode_assets'] ) ? $options['dev_mode_assets'] : 0 ); ?>> Yes
                     </td>

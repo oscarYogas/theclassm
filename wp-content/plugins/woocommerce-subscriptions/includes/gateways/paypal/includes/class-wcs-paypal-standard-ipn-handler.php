@@ -337,12 +337,13 @@ class WCS_PayPal_Standard_IPN_Handler extends WC_Gateway_Paypal_IPN_Handler {
 					if ( $is_first_payment ) {
 						$parent_order = self::get_parent_order_with_fallback( $subscription );
 
-						if ( ! $parent_order->is_paid() ) {
-							$parent_order->payment_complete( $transaction_details['txn_id'] );
+						// If we don't a valid order, let's create a renewal order.
+						if ( ! $parent_order ) {
+							$parent_order = wcs_create_renewal_order( $subscription );
 						}
 
-						if ( $subscription->can_be_updated_to( 'active' ) ) {
-							$subscription->update_status( 'active' );
+						if ( ! $parent_order->is_paid() ) {
+							$parent_order->payment_complete( $transaction_details['txn_id'] );
 						}
 
 						// Store PayPal Details on Order

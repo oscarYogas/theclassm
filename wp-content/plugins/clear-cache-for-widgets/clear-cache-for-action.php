@@ -99,6 +99,13 @@ function ccfm_clear_cache_for_woocommerce() {
 }
 
 /**
+ * Clear cache when Insert Headers and Footers is updated.
+ */
+function ccfm_insert_headers_and_footers() {
+    ccfm_clear_cache_for_me( 'insert-headers-and-footers' );
+}
+
+/**
  * Add all urls to be purged and purge it in GoDaddy Cache.
  */
 function ccfm_godaddy_purge() {
@@ -113,6 +120,13 @@ function ccfm_godaddy_purge() {
     }
     remove_action( 'shutdown', [ '\WPaaS\Cache', 'purge' ], PHP_INT_MAX );
     add_action( 'shutdown', [ '\WPaaS\Cache', 'ban' ], PHP_INT_MAX );
+}
+
+/**
+ * Clear cache for wp activities like plugin updates, deletes, activations, core updates.
+ */
+function ccfm_clear_cache_for_wp_activity() {
+    ccfm_clear_cache_for_me( 'wp_activity' );
 }
 
 /*** code for if qode was outside of theme and not saved by saving options. ***/

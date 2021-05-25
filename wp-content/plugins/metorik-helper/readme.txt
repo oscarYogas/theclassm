@@ -3,7 +3,7 @@ Contributors: bryceadams, metorik
 Tags: woocommerce, woocommerce reports, woocommerce emails, woocommerce abandoned carts, woocommerce carts,  woocommerce filtering, woocommerce google analytics, woocommerce zendesk, woocommerce help scout, woocommerce freshdesk, woocommerce support, woocommerce analytics, subscription reports, woo reports, woocommerce email, woocommerce email automation, woocommerce cart emails, woocommerce export, woocommerce csv 
 Requires at least: 4.4.0
 Requires PHP: 5.6.20
-Tested up to: 5.6.0
+Tested up to: 5.7.0
 Stable tag: trunk
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -76,9 +76,9 @@ Any data can be exported from Metorik at any time in minutes. You can even sched
 
 Metorik integrates seamlessly with [WooCommerce Subscriptions](https://metorik.com/go/subscriptions), offering subscription filtering & exporting, along with reports like MRR, Churn, Retention, Forecasting, and more. You can even have an automated subscriptions report sent to you every day summarising everything subscriptions-related.
 
-= Live chat support =
+= Fast support =
 
-Support is available through live chat to every Metorik user. Metorik's founder - [Bryce](https://twitter.com/bryceadams) - will personally work with you to ensure you and your team get the most out of Metorik.
+Support is available to every Metorik user, whether you're just starting your trial or have used us for years. We'll personally work with you to ensure you and your team get the most out of Metorik.
 
 = Bring your team =
 
@@ -121,6 +121,12 @@ To hide the links from individual orders/products, you can click the 'Screen Opt
 We all make mistakes. To get them back, go to http://yoursite.com/wp-admin?show-metorik-notices=yes while logged in as an administrator.
 
 == Changelog ==
+= 1.5.0 =
+* Added a filter 'metorik_cart_items', which can be used to disable Metorik's cart items count code.
+* Don't include auto-draft & checkout-draft orders in updated endpoints.
+* Added a filter 'metorik_orders_updated_query', which can be used for modifying the 'orders/updated' API endpoint query.
+* Send phone numbers with carts.
+
 = 1.4.1 =
 * Fix PHP notice with WP 5.5 and REST API changes.
 

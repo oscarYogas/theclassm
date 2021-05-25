@@ -17,11 +17,13 @@
  * needs please refer to https://docs.woocommerce.com/document/woocommerce-memberships/ for more information.
  *
  * @author    SkyVerge
- * @copyright Copyright (c) 2014-2020, SkyVerge, Inc. (info@skyverge.com)
+ * @copyright Copyright (c) 2014-2021, SkyVerge, Inc. (info@skyverge.com)
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_7_1 as Framework;
+use SkyVerge\WooCommerce\Memberships\Integrations\Courseware\LearnDash;
+use SkyVerge\WooCommerce\Memberships\Integrations\Courseware\Sensei;
+use SkyVerge\WooCommerce\PluginFramework\v5_10_6 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -30,11 +32,13 @@ defined( 'ABSPATH' ) or exit;
  *
  * - bbPress: https://bbpress.org/
  * - WooCommerce Bookings: https://woocommerce.com/products/woocommerce-bookings/
+ * - Elementor Builder: https://elementor.com/
  * - Groups: https://wordpress.org/plugins/groups/
  * - LearnDash: https://www.learndash.com/
  * - qTranslate X: https://wordpress.org/plugins/qtranslate-x/
  * - WooCommerce Measurement Price Calculator https://woocommerce.com/products/measurement-price-calculator/
  * - WooCommerce One Page Checkout https://woocommerce.com/products/woocommerce-one-page-checkout
+ * - WooCommerce Sensei LMS https://woocommerce.com/products/sensei/
  * - WooCommerce Subscriptions: https://woocommerce.com/products/woocommerce-subscriptions/
  * - User Switching: https://wordpress.org/plugins/user-switching/
  *
@@ -49,10 +53,13 @@ class WC_Memberships_Integrations {
 	/** @var null|\WC_Memberships_Integration_Bookings instance */
 	private $bookings;
 
+	/** @var null|\SkyVerge\WooCommerce\Memberships\Integrations\Elementor_Builder instance */
+	private $elementor_builder;
+
 	/** @var null|\WC_Memberships_Integration_Groups instance */
 	private $groups;
 
-	/** @var null|\SkyVerge\WooCommerce\Memberships\Integrations\LearnDash instance */
+	/** @var null|\SkyVerge\WooCommerce\Memberships\Integrations\Courseware\LearnDash instance */
 	private $learndash;
 
 	/** @var null|\WC_Memberships_Integration_Measurement_Price_Calculator instance */
@@ -60,6 +67,9 @@ class WC_Memberships_Integrations {
 
 	/** @var null|\WC_Memberships_Integration_One_Page_Checkout instance */
 	private $one_page_checkout;
+
+	/** @var null|\SkyVerge\WooCommerce\Memberships\Integrations\Courseware\Sensei instance */
+	private $sensei;
 
 	/** @var null|\WC_Memberships_Integration_Subscriptions instance */
 	private $subscriptions;
@@ -85,6 +95,14 @@ class WC_Memberships_Integrations {
 			$this->bookings = wc_memberships()->load_class( '/includes/integrations/bookings/class-wc-memberships-integration-bookings.php', 'WC_Memberships_Integration_Bookings' );
 		}
 
+		// Elementor Builder
+		if ( $this->is_elementor_builder_active() ) {
+
+			require_once( wc_memberships()->get_plugin_path() . '/includes/integrations/Elementor_Builder.php' );
+
+			$this->elementor_builder = new \SkyVerge\WooCommerce\Memberships\Integrations\Elementor_Builder();
+		}
+
 		// Groups
 		if ( $this->is_groups_active() ) {
 			$this->groups = wc_memberships()->load_class( '/includes/integrations/groups/class-wc-memberships-integration-groups.php', 'WC_Memberships_Integration_Groups' );
@@ -92,7 +110,14 @@ class WC_Memberships_Integrations {
 
 		// LearnDash
 		if ( wc_memberships()->is_plugin_active( 'sfwd_lms.php' ) ) {
-			$this->learndash = wc_memberships()->load_class( '/includes/integrations/Learndash/Learndash.php', '\\SkyVerge\\WooCommerce\\Memberships\\Integrations\\Learndash' );
+
+			require_once( wc_memberships()->get_plugin_path() . '/includes/integrations/Courseware.php' );
+			require_once( wc_memberships()->get_plugin_path() . '/includes/integrations/Courseware/LearnDash.php' );
+
+			$this->learndash = new LearnDash();
+
+			// @TODO remove this class alias by version 3.0.0 or by April 2022 {unfulvio 2021-04-29}
+			class_alias( LearnDash::class, '\\SkyVerge\\WooCommerce\\Memberships\\Integrations\\LearnDash', false );
 		}
 
 		// qTranslate-x
@@ -107,6 +132,18 @@ class WC_Memberships_Integrations {
 		// One Page Checkout
 		if ( $this->is_one_page_checkout_active() ) {
 			$this->one_page_checkout = wc_memberships()->load_class( '/includes/integrations/one-page-checkout/class-wc-memberships-integration-one-page-checkout.php', 'WC_Memberships_Integration_One_Page_Checkout' );
+		}
+
+		// Sensei
+		if ( $this->is_sensei_active() ) {
+
+			require_once( wc_memberships()->get_plugin_path() . '/includes/integrations/Courseware.php' );
+			require_once( wc_memberships()->get_plugin_path() . '/includes/integrations/Courseware/Sensei.php' );
+
+			$this->sensei = new Sensei();
+
+			// @TODO remove this class alias by version 3.0.0 or by April 2022 {unfulvio 2021-04-29}
+			class_alias( Sensei::class, '\\SkyVerge\\WooCommerce\\Memberships\\Integrations\\Sensei', false );
 		}
 
 		// Subscriptions
@@ -124,12 +161,6 @@ class WC_Memberships_Integrations {
 			/** @deprecated remove legacy class aliases when the plugin has fully migrated to namespaces */
 			class_alias( \SkyVerge\WooCommerce\Memberships\Integrations\User_Switching::class, 'WC_Memberships_Integration_User_Switching', false );
 		}
-
-		// Jilt Promotions -- can't use admin_init because that's too late to be able to add connection redirect args
-		add_action( 'init', static function() {
-			require_once( wc_memberships()->get_plugin_path() . '/includes/integrations/Jilt_Promotions/Import_Export.php' );
-			new \SkyVerge\WooCommerce\Memberships\Integrations\Jilt_Promotions\Import_Export();
-		} );
 	}
 
 
@@ -207,6 +238,19 @@ class WC_Memberships_Integrations {
 
 
 	/**
+	 * Gets the Sensei integration instance.
+	 *
+	 * @since 1.21.0
+	 *
+	 * @return \SkyVerge\WooCommerce\Memberships\Integrations\Courseware\Sensei|null
+	 */
+	public function get_sensei_instance() {
+
+		return $this->sensei;
+	}
+
+
+	/**
 	 * Returns the Subscriptions integration instance.
 	 *
 	 * @since 1.6.0
@@ -228,6 +272,19 @@ class WC_Memberships_Integrations {
 	public function get_user_switching_instance() {
 
 		return $this->user_switching;
+	}
+
+
+	/**
+	 * Gets the Elementor Builder integration instance.
+	 *
+	 * @since 1.20.0
+	 *
+	 * @return null|\SkyVerge\WooCommerce\Memberships\Integrations\Elementor_Builder
+	 */
+	public function get_elementor_builder_instance() {
+
+		return $this->elementor_builder;
 	}
 
 
@@ -257,6 +314,19 @@ class WC_Memberships_Integrations {
 
 
 	/**
+	 * Checks if Elementor Builder plugin is active.
+	 *
+	 * @since 1.20.0
+	 *
+	 * @return bool
+	 */
+	public function is_elementor_builder_active() {
+
+		return wc_memberships()->is_plugin_active( 'elementor.php' );
+	}
+
+
+	/**
 	 * Checks if Groups is active.
 	 *
 	 * @since 1.6.0
@@ -271,11 +341,16 @@ class WC_Memberships_Integrations {
 	/**
 	 * Checks if Jilt for WooCommerce is active.
 	 *
+	 * TODO remove this method by December 2021 or by version 2.0.0, whichever comes first {FN 2020-11-11}
+	 *
 	 * @since 1.14.0
+	 * @deprecated since 1.20.0
 	 *
 	 * @return bool
 	 */
 	public function is_jilt_active() {
+
+		wc_deprecated_function( __METHOD__, '1.20.0', 'wc_memberships()->is_plugin_active( \'jilt-for-woocommerce.php\' )' );
 
 		return wc_memberships()->is_plugin_active( 'jilt-for-woocommerce.php' );
 	}
@@ -294,7 +369,7 @@ class WC_Memberships_Integrations {
 
 
 	/**
-	 * Checks if One Page Checkout is active
+	 * Checks if One Page Checkout is active.
 	 *
 	 * @since 1.10.6
 	 *
@@ -303,6 +378,19 @@ class WC_Memberships_Integrations {
 	public function is_one_page_checkout_active() {
 
 		return wc_memberships()->is_plugin_active( 'woocommerce-one-page-checkout.php' );
+	}
+
+
+	/**
+	 * Checks if Sensei LMS is active.
+	 *
+	 * @since 1.21.0
+	 *
+	 * @return bool
+	 */
+	public function is_sensei_active() : bool {
+
+		return wc_memberships()->is_plugin_active( 'sensei-lms.php' );
 	}
 
 

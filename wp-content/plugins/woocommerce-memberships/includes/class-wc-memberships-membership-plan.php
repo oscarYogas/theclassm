@@ -17,11 +17,11 @@
  * needs please refer to https://docs.woocommerce.com/document/woocommerce-memberships/ for more information.
  *
  * @author    SkyVerge
- * @copyright Copyright (c) 2014-2020, SkyVerge, Inc. (info@skyverge.com)
+ * @copyright Copyright (c) 2014-2021, SkyVerge, Inc. (info@skyverge.com)
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_7_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_10_6 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -1351,6 +1351,7 @@ class WC_Memberships_Membership_Plan {
 				'discount_amount'               => $rule->get_discount_amount(),
 				'discount_type'                 => $rule->get_discount_type(),
 				'rule_type'                     => $rule->get_rule_type(),
+				'meta_data'                     => $rule->get_meta_data(),
 			) );
 
 			// Further subdivide rules between those that target higher level content (e.g. a whole taxonomy or post type) and those that target individual objects (posts, terms):
@@ -1477,7 +1478,7 @@ class WC_Memberships_Membership_Plan {
 			}
 		}
 
-		$post_ids = array_unique( array_map( 'absint', call_user_func_array( 'array_merge', $post_ids ) ) );
+		$post_ids = array_unique( array_map( 'absint', array_merge( ...$post_ids ) ) );
 
 		// remove from found results items that are forced public for everyone
 		if ( ! empty( $post_ids ) ) {

@@ -3,8 +3,8 @@ Author URI: https://quaderno.io/integrations/woocommerce/?utm_source=wordpress&u
 Contributors: polimorfico
 Tags: tax, taxes, sales tax, vat, gst, vatmoss, vat moss, billing, invoices, receipts, credit notes, woocommerce, quaderno
 Requires at least: 4.6
-Tested up to: 5.5
-Stable tag: 1.21.18
+Tested up to: 5.7
+Stable tag: 1.23.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -56,7 +56,7 @@ Nope - we take care of everything you. Just install the plugin, add your API tok
 = Does Quaderno work with any WooCommerce themes? =
 Yes, Quaderno works with any WooCommerce theme - whether free, commercial or custom. You just need WooCommerce activated for Quaderno to work.
 
-If you have any questions please get in touch with us at hello@quaderno.io.
+If you have any questions please get in touch with us at support@quaderno.io.
 
 == Screenshots ==
 
@@ -66,6 +66,62 @@ If you have any questions please get in touch with us at hello@quaderno.io.
 4. Example of a receipt
 
 == Changelog ==
+
+= 1.23.7 – April 26, 2021 =
+* New: Hooks to customize item descriptions, payment methods, tax rates, and tax locations.
+
+= 1.23.6 – April 22, 2021 =
+* New: Hooks to customize PO number and notes fields
+
+= 1.23.5 – April 15, 2021 =
+* New: Support for Braintree
+
+= 1.23.4 – April 7, 2021 =
+* Fix: Create invoices with 0% tax rate when there are no taxes
+* Fix: Cannot deliver receipts
+
+= 1.23.3 – March 22, 2021 =
+* New: Track new payment methods
+
+= 1.23.2 – March 20, 2021 =
+* New: Use the customer processor data only if the customer is registered
+* New: Add Quaderno status page to improve our customer support
+* New: Use the new Tax API to validate tax ids and calculate tax rates
+
+= 1.23.1 – March 18, 2021 =
+* Fix: Problem with evidence creation
+
+= 1.23.0 – March 17, 2021 =
+* New: Add new hook to skip invoices and credit notes 
+* New: Use new Quaderno Transactions API
+
+= 1.22.5 – March 11, 2021 =
+* New: Support for WooCommerce 5.1
+* New: Support for WordPress 5.7
+
+= 1.22.4 – February 17, 2021 =
+* Fix: Error in tax calculations for custom tax classes
+
+= 1.22.3 – February 10, 20201 =
+* Fix: Quaderno is creating invoice for $0 orders
+
+= 1.22.2 – February 9, 2021 =
+* New: Show variation description on invoices
+
+= 1.22.1 – February 4, 2021 =
+* Fix: Location evidence are not stored in Quaderno
+
+= 1.22.0 – December 21, 2020 =
+* New: Support for new UK VAT after Brexit, including VAT calculation for overseas goods sold to UK customers under £135
+
+= 1.21.21 – December 9, 2020 =
+* New: Support for WordPress 5.6
+
+= 1.21.20 – December 3, 2020 =
+* Fix: Do not calculate taxes for tax exempted products
+
+= 1.21.19 – December 2, 2020 =
+* Fix: Wrong tax class for subscription variations
 
 = 1.21.18 – November 27, 2020 =
 * Fix: Support subscriptions variations
@@ -90,8 +146,8 @@ If you have any questions please get in touch with us at hello@quaderno.io.
 * Fix: Default location is not used in the cart
 
 = 1.21.11 – August 11, 2020 =
-* New: Support WordPress 5.5
-* New: Support WooCommerce 4.3
+* New: Support for WordPress 5.5
+* New: Support for WooCommerce 4.3
 
 = 1.21.10 – July 15, 2020 =
 * New: Re-validate the customer's tax id if the completed order doesn't have the custom file "is_vat_exempted"
@@ -369,9 +425,9 @@ If you have any questions please get in touch with us at hello@quaderno.io.
 
 * English - default, always included
 * Spanish: Español - siempre incluido
-* German: Deutsch - translated by [Alex Gahr](http://alexgahr.com)
-* French: Français - translated by [Sébastien Jacobs](http://xando.be)
-* Dutch: Nederlands - translated by [Sébastien Jacobs](http://xando.be)
+* German: Deutsch - translated by [Alex Gahr](https://germantakeaways.com)
+* French: Français - translated by [Sébastien Jacobs](https://xando.pro)
+* Dutch: Nederlands - translated by [Sébastien Jacobs](https://xando.pro)
 
 *Note:* This plugin is fully localized. This is very important for all users worldwide. So please contribute your language to the plugin to make it even more useful. For translating we recommend the ["Poedit Editor"](http://www.poedit.net/).
 

@@ -5,11 +5,11 @@ Plugin URI: https://webheadcoder.com/clear-cache-for-me/
 Description: Purges all cache on WPEngine, W3 Total Cache, WP Super Cache, WP Fastest Cache when updating widgets, menus, settings.  Forces a browser to reload a theme's CSS and JS files.
 Author: Webhead LLC
 Author URI: https://webheadcoder.com 
-Version: 1.5
+Version: 1.6
 */
 
 
-define( 'CCFM_VERSION', '1.5' );
+define( 'CCFM_VERSION', '1.6' );
 define( 'CCFM_PLUGIN', __FILE__ );
 
 require_once( 'clear-cache-for-action.php' );
@@ -37,6 +37,13 @@ function ccfm_plugins_loaded() {
         delete_option( 'ccfm_infotext' );
     }
 
+    if ( apply_filters( 'ccfm_clear_cache_on_wp_activity', is_user_logged_in() ) ) {
+        add_action( 'activated_plugin', 'ccfm_clear_cache_for_wp_activity' );
+        add_action( 'deactivated_plugin', 'ccfm_clear_cache_for_wp_activity' );
+        add_action( 'upgrader_process_complete', 'ccfm_clear_cache_for_wp_activity' );
+
+        add_action( '_core_updated_successfully', 'ccfm_clear_cache_for_wp_activity' );
+    }
 }
 add_action( 'plugins_loaded', 'ccfm_plugins_loaded' );
 
@@ -95,6 +102,10 @@ function ccfm_admin_init() {
         //detect Contact Form by WP Forms changes
         add_action( 'wpforms_builder_save_form', 'ccfm_clear_cache_for_wpforms' );
 
+        // detect Insert Headers and Footers by WPBeginner changes
+        add_action( 'update_option_ihaf_insert_header', 'ccfm_insert_headers_and_footers' );
+        add_action( 'update_option_ihaf_insert_footer', 'ccfm_insert_headers_and_footers' );
+        add_action( 'update_option_ihaf_insert_body', 'ccfm_insert_headers_and_footers' );
 
         do_action( 'ccfm_admin_init' );
     }
@@ -123,10 +134,13 @@ add_action( 'init', 'ccfm_init_actions' );
  * Enqueue script for admin bar.
  */
 function ccfm_enqueue_admin_bar_scripts() {
+    if ( !is_user_logged_in() ) {
+        return;
+    }
     wp_enqueue_script( 
         'ccfm-admin-bar', 
         plugins_url( '/js/admin-bar.js', CCFM_PLUGIN ),
-        array( 'admin-bar' ), 
+        array( 'jquery', 'admin-bar' ), 
         CCFM_VERSION, 
         true
     );
@@ -243,12 +257,29 @@ function ccfm_supported_caching_exists() {
 }
 
 /**
- * Clear the caches!
+ * Set up the cache to be cleared
  */
 function ccfm_clear_cache_for_me( $source ) {
-    global $wp_fastest_cache, $kinsta_cache, $admin;
+    global $ccfm_source;
+    if ( isset( $ccfm_source ) ) {
+        return;
+    }
 
-    do_action( 'ccfm_clear_cache_for_me_before', $source );
+    $ccfm_source = $source;
+    add_action( 'shutdown', 'ccfm_clear_cache_for_all' );
+}
+
+/**
+ * Clear the caches!
+ */
+function ccfm_clear_cache_for_all() {
+    global $wp_fastest_cache, $kinsta_cache, $admin, $ccfm_source;
+
+    if ( empty( $ccfm_source ) ) {
+        $ccfm_source = '';
+    }
+
+    do_action( 'ccfm_clear_cache_for_me_before', $ccfm_source );
 
     // if W3 Total Cache is being used, clear the cache
     if ( function_exists( 'w3tc_pgcache_flush' ) ) { 
@@ -300,16 +331,13 @@ function ccfm_clear_cache_for_me( $source ) {
     else if ( function_exists( 'sg_cachepress_purge_cache' ) ) {
         sg_cachepress_purge_cache();
     }
-    else if ( function_exists( 'sg_cachepress_purge_cache' ) ) {
-        sg_cachepress_purge_cache();
-    }
     else if ( class_exists( 'autoptimizeCache' ) ) {
         autoptimizeCache::clearall();
     }
     else if ( class_exists( 'Cache_Enabler' ) ) {
         Cache_Enabler::clear_total_cache();
     }
-    do_action( 'ccfm_clear_cache_for_me', $source );
+    do_action( 'ccfm_clear_cache_for_me', $ccfm_source );
 
     $time = time();
     update_option( '_ccfm_style_timestamp_theme', $time );

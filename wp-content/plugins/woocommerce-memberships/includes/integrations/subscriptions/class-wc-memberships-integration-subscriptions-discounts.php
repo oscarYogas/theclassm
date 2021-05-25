@@ -17,11 +17,11 @@
  * needs please refer to https://docs.woocommerce.com/document/woocommerce-memberships/ for more information.
  *
  * @author    SkyVerge
- * @copyright Copyright (c) 2014-2020, SkyVerge, Inc. (info@skyverge.com)
+ * @copyright Copyright (c) 2014-2021, SkyVerge, Inc. (info@skyverge.com)
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  */
 
-use SkyVerge\WooCommerce\PluginFramework\v5_7_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_10_6 as Framework;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -51,7 +51,7 @@ class WC_Memberships_Integration_Subscriptions_Discounts {
 	public function __construct() {
 
 		// process member discounts for Subscriptions after standard discounts
-		add_action( 'init', array( $this, 'init' ), 20 );
+		add_action( 'wp_loaded', [ $this, 'init' ], 20 );
 
 		// create an option in settings to enable sign up fees discounts
 		add_filter( 'wc_memberships_products_settings', array( $this, 'enable_discounts_to_sign_up_fees' ) );
@@ -140,11 +140,11 @@ class WC_Memberships_Integration_Subscriptions_Discounts {
 
 				do_action( 'wc_memberships_discounts_disable_price_adjustments' );
 
-				$price_before_discount = $product->get_price();
+				$price_before_discount = wc_get_price_to_display( $product );
 
 				do_action( 'wc_memberships_discounts_enable_price_adjustments' );
 
-				$price_after_discount = $product->get_price();
+				$price_after_discount = wc_get_price_to_display( $product );
 
 				if ( $price_before_discount !== $price_after_discount ) {
 
@@ -292,25 +292,16 @@ class WC_Memberships_Integration_Subscriptions_Discounts {
 	 */
 	public function disable_cart_discounts_for_renewals( $exclude_from_discounts, $product = null ) {
 
-		if ( ! $exclude_from_discounts && \WC_Subscriptions_Product::is_subscription( $product ) && is_user_logged_in() ) {
+		if ( ! $exclude_from_discounts && isset( WC()->cart ) && \WC_Subscriptions_Product::is_subscription( $product ) && is_user_logged_in() ) {
 
 			$product_id = $product instanceof \WC_Product ? $product->get_id() : $product;
 
-			foreach ( wcs_get_users_subscriptions( get_current_user_id() ) as $subscription ) {
+			foreach ( WC()->cart->get_cart_contents() as $item ) {
 
-				foreach ( $subscription->get_items( 'line_item' ) as $line_item ) {
+				if ( $product_id && isset( $item['subscription_renewal'] ) && (int) $product_id === (int) $item['product_id'] ) {
 
-					if ( $line_item instanceof \WC_Order_Item_Product ) {
-
-						$subscription_product    = $line_item->get_product();
-						$subscription_product_id = $subscription_product ? $subscription_product->get_id() : 0;
-
-						if ( $subscription_product_id > 0 && $product_id === $subscription_product_id ) {
-
-							$exclude_from_discounts = true;
-							break 2;
-						}
-					}
+					$exclude_from_discounts = true;
+					break;
 				}
 			}
 		}
